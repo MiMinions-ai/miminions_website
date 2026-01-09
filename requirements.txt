@@ -1,0 +1,15 @@
+Flask
+Flask-Login
+flask-jwt-extended
+Werkzeug
+python-dotenv
+openai
+faiss-cpu
+sentence-transformers
+boto3
+PyJWT
+PyMuPDF
+flask-session
+werkzeug
+uuid
+flask-cors
