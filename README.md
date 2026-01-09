@@ -45,8 +45,8 @@ website/
 
 1. **Clone and setup**:
    ```bash
-   git clone https://github.com/miminions-ai/website.git
-   cd website
+   git clone https://github.com/miminions-ai/miminions_website.git
+   cd miminions_website
    python -m venv .venv
    source .venv/bin/activate
    ```
