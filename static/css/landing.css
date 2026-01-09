@@ -1,0 +1,320 @@
+/* Landing Page Styles for miminions.ai */
+/* These styles supplement Bootstrap and are used on the landing page */
+
+/* CSS Variables for landing page */
+:root {
+    --landing-primary: #2DD4BF;
+    --landing-secondary: #0EA5E9;
+    --landing-accent: #FDE047;
+    --landing-text: #374151;
+    --landing-light: #F3F4F6;
+    --landing-medium: #9CA3AF;
+}
+
+/* Hero Section */
+.landing-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #ffffff 0%, var(--landing-light) 100%);
+}
+
+.landing-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    color: var(--landing-text);
+}
+
+.landing-hero .lead {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #4b5563;
+}
+
+.landing-hero .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-landing-primary {
+    background: linear-gradient(135deg, var(--landing-primary) 0%, var(--landing-secondary) 100%);
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-landing-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
+    color: white;
+}
+
+.btn-landing-secondary {
+    background-color: white;
+    color: var(--landing-primary);
+    padding: 0.875rem 2rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid var(--landing-primary);
+    transition: all 0.3s;
+}
+
+.btn-landing-secondary:hover {
+    background-color: var(--landing-light);
+    border-color: var(--landing-secondary);
+    color: var(--landing-secondary);
+}
+
+/* Features Section */
+.landing-features {
+    padding: 5rem 0;
+    background-color: #ffffff;
+}
+
+.landing-features h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    color: var(--landing-text);
+}
+
+.feature-card {
+    padding: 2rem;
+    border-radius: 1rem;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s;
+    height: 100%;
+    border: 1px solid var(--landing-light);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-bottom: 3px solid var(--landing-accent);
+}
+
+.feature-card i {
+    font-size: 2.5rem;
+    color: var(--landing-secondary);
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--landing-text);
+}
+
+.feature-card p {
+    color: var(--landing-medium);
+    margin-bottom: 0;
+}
+
+/* Get Started Section */
+.landing-get-started {
+    padding: 5rem 0;
+    background-color: var(--landing-light);
+}
+
+.landing-get-started h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    color: var(--landing-text);
+}
+
+.step-card {
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    height: 100%;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--landing-primary) 0%, var(--landing-secondary) 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.step-card h3 {
+    margin-bottom: 0.75rem;
+    color: var(--landing-text);
+}
+
+.step-card p {
+    color: var(--landing-medium);
+    margin-bottom: 1rem;
+}
+
+.step-card pre {
+    background: #1f2937;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 0;
+    overflow-x: auto;
+}
+
+.step-card code {
+    color: #e5e7eb;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+}
+
+/* CTA Section */
+.landing-cta {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, var(--landing-primary) 0%, var(--landing-secondary) 100%);
+    color: white;
+    text-align: center;
+}
+
+.landing-cta h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.landing-cta p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.landing-cta .btn-landing-primary {
+    background: white;
+    color: var(--landing-primary);
+}
+
+.landing-cta .btn-landing-primary:hover {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
+}
+
+/* Landing Footer */
+.landing-footer {
+    background-color: var(--landing-text);
+    color: white;
+    padding: 4rem 0 2rem;
+}
+
+.landing-footer h4 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.landing-footer p {
+    color: var(--landing-medium);
+}
+
+.landing-footer a {
+    display: block;
+    color: var(--landing-medium);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s;
+}
+
+.landing-footer a:hover {
+    color: var(--landing-accent);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #4b5563;
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: var(--landing-medium);
+}
+
+/* Waitlist Popup */
+.waitlist-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.waitlist-popup.show {
+    display: flex;
+}
+
+.waitlist-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 90%;
+}
+
+.waitlist-content h3 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: var(--landing-text);
+}
+
+.waitlist-content .lead {
+    margin-bottom: 1.5rem;
+    color: var(--landing-medium);
+}
+
+.waitlist-content .form-control {
+    margin-bottom: 1rem;
+}
+
+.submission-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.submission-message.success {
+    background-color: #DEF7EC;
+    color: #03543F;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .landing-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .landing-hero .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-landing-primary,
+    .btn-landing-secondary {
+        width: 100%;
+        text-align: center;
+    }
+}
