@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Chat - miminions.ai{% endblock %}
+{% block content %}
+
+<!-- Page content-->
+<div class="loader">
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+<section>
+  <div class="container px-5">
+    <h2>Chat: {{assistant_data["name"]}}</h2>
+
+    <div class="chat-container d-flex flex-column">
+      <div id="chat-box" class="chat-box d-flex flex-column"></div>
+      <div class="chat-input">
+          <input type="text" id="messageInput" class="form-control" placeholder="Type a message...">
+          <button id="msgSend" class="btn btn-primary" onclick="sendMessage()">
+            <span>Send</span>
+            <div class="d-none spinner spinner-border spinner-border-sm ml-auto"></div>
+          </button>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
+<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+<script>
+  // Function to simulate typing effect
+  function typeMessage(message, containerId, speed, onComplete) {
+      message = message.replace(/\\(.)/g, "$1");  // Remove backslashes
+      const container = document.getElementById(containerId);
+      const messageElement = document.createElement("div");
+      messageElement.classList.add("message");
+      messageElement.classList.add("bot-message");
+
+      const textElement = document.createElement("span");
+      textElement.classList.add("text");
+
+      const cursorElement = document.createElement("span");
+      cursorElement.classList.add("typing-cursor");
+
+      messageElement.appendChild(textElement);
+      messageElement.appendChild(cursorElement);
+      container.appendChild(messageElement);
+
+      marked.parse(message);
+
+      let i = 0;
+      const interval = setInterval(function() {
+          if (i < message.length) {
+              textElement.textContent += message.charAt(i);
+              i++;
+          } else {
+              clearInterval(interval);
+              cursorElement.style.animation = 'none'; // Stop blinking after typing is done
+              cursorElement.style.opacity = 0; // Hide the cursor
+              if (onComplete) onComplete(); // Call onComplete callback after typing is done
+          }
+      }, speed);
+
+      
+  }
+
+  function sendMessage() {
+
+    const aId = `{{aid}}`
+    const threadId = `{{thread[id][aid]["thread_id"]}}`
+    const id = `{{id}}`
+    
+    //<div class="message bot-message">Hello! How can I help you?</div>
+    
+    const message = document.getElementById("messageInput").value;
+    document.getElementById("messageInput").value = "";
+    
+    saveMessage("User", message, threadId, id);
+    loadMessage("User", message);
+    showLoader("User");
+    scrollToBottom();
+
+    fetch(`/message/${aId}/${threadId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      showLoader("Bot");
+      saveMessage("Bot", data.message, threadId, id);
+      typeMessage(data.message, "chat-box", 15);
+      scrollToBottom();
+    })
+    .then(() => {
+        //setTimeout(fetchMessages, 3000);  // Start polling after sending message
+    });
+  }
+
+
+  function saveMessage(user, text, tid, id) {
+      // Get existing messages or initialize an empty array
+      let messages = JSON.parse(localStorage.getItem(id+tid)) || [];
+
+      // Add new message
+      messages.push
+      messages.push({ user, text, timestamp: new Date().toISOString() });
+
+      // Save updated messages back to localStorage
+      localStorage.setItem(id+tid, JSON.stringify(messages));
+  }
+  
+  function displayMessages() {
+      const tid = `{{thread[id][aid]["thread_id"]}}`
+      const id = `{{id}}`
+      let chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML = "";
+      let messages = JSON.parse(localStorage.getItem(id+tid)) || [];
+      messages.forEach((msg) => {
+        if (msg.text !== undefined) {
+          let userMessage = document.createElement("div");
+          userMessage.className = (msg.user == "Bot" ? "message bot-message" : "message user-message");
+          userMessage.innerHTML = msg.text !== undefined ? marked.parse(msg.text.replace(/\\(.)/g, "$1")) : "";
+          chatBox.appendChild(userMessage);
+        }
+      });
+      // Scroll to the bottom
+      scrollToBottom();
+  }
+
+  function loadMessage(user, text) {
+    const chatBox = document.getElementById("chat-box");
+    let userMessage = document.createElement("div");
+    userMessage.className = (user == "Bot" ? "message bot-message" : "message user-message");
+    userMessage.textContent = text;//marked.parse(text.replace(/\\(.)/g, "$1"));
+    chatBox.appendChild(userMessage);
+  }
+
+  function showLoader(user) {
+    const button = document.querySelector('.spinner');
+    button.classList.remove('d-block');
+    button.classList.add('d-none');
+    button.disabled = false;
+
+    if(user == "User") {
+      // Show loading state on the button
+      button.classList.remove('d-none');
+      button.classList.add('d-block');
+
+      // Disable the button to prevent multiple clicks
+      button.disabled = true;
+    }
+  }
+
+  function scrollToBottom() {
+      const chatBox = document.getElementById("chat-box");
+      chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  displayMessages();
+
+  document.getElementById("messageInput").addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+          event.preventDefault(); // prevent form submit if inside form
+          document.getElementById("msgSend").click(); // trigger button click
+      }
+  });
+
+  
+</script>
+
+{% endblock %}

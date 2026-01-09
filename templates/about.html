@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}About - miminions.ai{% endblock %}
+{% block content %}
+
+<!-- Page content-->
+<section class="py-5">
+    <div class="container px-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="fw-bolder mb-4">About miminions.ai</h1>
+                <p class="lead mb-4">We're building the future of autonomous AI agents. Our mission is to make AI agents accessible, safe, and powerful for developers worldwide.</p>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title"><i class="bi bi-eye me-2 text-primary"></i>Our Vision</h3>
+                        <p class="card-text">To democratize AI agent development and create a world where autonomous AI systems can safely and effectively assist in various tasks. We believe that agentic AI will transform how we work, create, and solve problems.</p>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title"><i class="bi bi-bullseye me-2 text-primary"></i>Our Mission</h3>
+                        <p class="card-text">Providing developers with the tools and framework they need to build reliable, safe, and powerful AI agents. We're committed to open-source development, community collaboration, and pushing the boundaries of what's possible with autonomous AI.</p>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title"><i class="bi bi-stars me-2 text-primary"></i>What We Do</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Build open-source AI agent frameworks</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Develop multi-agent orchestration systems</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Create safety mechanisms for autonomous AI</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Provide tools for enterprise AI deployment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <h4>Ready to build with us?</h4>
+                    <p>Join thousands of developers creating the next generation of AI agents.</p>
+                    <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg me-2">Get Started</a>
+                    <a href="https://github.com/miminions-ai" class="btn btn-outline-dark btn-lg" target="_blank"><i class="bi bi-github me-2"></i>GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

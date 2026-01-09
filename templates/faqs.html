@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}FAQ - miminions.ai{% endblock %}
+{% block content %}
+<!-- Page content-->
+<section class="">
+  <div class="container px-5">
+<h2>Frequently Asked Questions</h2>
+<p class="text-muted mb-4">Everything you need to know about miminions.ai</p>
+
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          What is miminions.ai?
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>miminions.ai is an open-source framework for building autonomous AI agents.</strong> It enables developers to create, deploy, and manage agentic AI systems that can think, plan, and execute tasks independently. Our framework provides the building blocks for multi-agent systems with built-in safety mechanisms.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          How do I get started?
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Getting started is easy!</strong> Install the framework using <code>pip install miminions-ai</code>, then create your first agent with just a few lines of code. Check out our documentation and tutorials for step-by-step guides on building your first autonomous AI agent.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingThree">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Is miminions.ai free to use?
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Yes! miminions.ai is open-source and free to use.</strong> You can use it for personal projects, commercial applications, and contribute to its development. Check out our GitHub repository to see the source code and contribute to the project.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingFour">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          What safety features are included?
+        </button>
+      </h2>
+      <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Safety is a core principle of miminions.ai.</strong> Our framework includes built-in guardrails, action approval workflows, sandboxed execution environments, and comprehensive logging. We provide tools for monitoring agent behavior and implementing human-in-the-loop oversight when needed.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}
