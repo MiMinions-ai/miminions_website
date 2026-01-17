@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Use Cases - miminions.ai{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .use-cases-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0 60px;
+    }
+    
+    .use-cases-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .use-cases-hero p {
+        font-size: 1.25rem;
+        opacity: 0.95;
+    }
+    
+    .intro-section {
+        background: #f8f9fa;
+        padding: 60px 0;
+        margin-bottom: 60px;
+    }
+    
+    .intro-section p {
+        font-size: 1.1rem;
+        color: #495057;
+        line-height: 1.8;
+    }
+    
+    .code-snippet {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+    
+    .code-snippet code {
+        color: #212529 !important;
+        display: block;
+        line-height: 1.6;
+    }
+    
+    .use-case-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
+    }
+    
+    .gradient-box {
+        border-radius: 1rem;
+        padding: 2rem;
+        color: white;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+    
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="use-cases-hero">
+    <div class="container px-5">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1>miminions.ai Use Cases</h1>
+                <p class="lead">Discover how autonomous AI agents are transforming industries and workflows</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Introduction -->
+<section class="intro-section">
+    <div class="container px-5">
+        <div class="row">
+            <div class="col-lg-10 mx-auto text-center">
+                <p class="mb-0">miminions.ai empowers developers to create intelligent, autonomous agents that can handle complex tasks, maintain context, and integrate seamlessly with external tools. Explore real-world applications below.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Use Cases Content -->
+<section class="pb-5">
+    <div class="container px-5">
+
+        <!-- Use Case 1: Memory-Enabled Agents -->
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="badge bg-primary mb-3">Memory & Context</div>
+                <h2 class="h3 mb-3">Knowledge-Aware AI Agents</h2>
+                <p class="mb-3">Build agents with long-term memory capabilities using vector databases like FAISS. Your agents can store, recall, and update knowledge dynamically, maintaining context across conversations.</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Store and retrieve knowledge efficiently</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Semantic search with similarity scoring</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Update and manage memory entries</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Context-aware responses</li>
+                </ul>
+                <div class="code-snippet">
+                    <small class="text-muted d-block mb-2">Example: Store Knowledge</small>
+                    <code>
+agent.store_knowledge(<br>
+&nbsp;&nbsp;"Python is a high-level programming language",<br>
+&nbsp;&nbsp;metadata={"category": "programming"}<br>
+)
+                    </code>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="gradient-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h4 class="mb-3"><i class="fas fa-lightbulb me-2"></i>Perfect For</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">• Customer support agents that remember user history</li>
+                        <li class="mb-2">• Personal assistants with long-term context</li>
+                        <li class="mb-2">• Research agents that accumulate knowledge</li>
+                        <li class="mb-2">• Educational tutors with personalized learning</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Use Case 2: Document Processing -->
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+                <div class="badge bg-success mb-3">Document Intelligence</div>
+                <h2 class="h3 mb-3">Intelligent Document Processing</h2>
+                <p class="mb-3">Ingest and process documents (PDFs, text files) with automatic chunking for optimal retrieval. Agents can understand and query document content with semantic search.</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>PDF and text file ingestion</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Automatic text chunking with overlap</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Semantic document search</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Metadata tagging and filtering</li>
+                </ul>
+                <div class="code-snippet">
+                    <small class="text-muted d-block mb-2">Example: Ingest Document</small>
+                    <code>
+result = agent.execute_tool(<br>
+&nbsp;&nbsp;"ingest_document",<br>
+&nbsp;&nbsp;filepath="resume.pdf"<br>
+)
+                    </code>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <div class="gradient-box" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <h4 class="mb-3"><i class="fas fa-file-alt me-2"></i>Perfect For</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">• Legal document analysis and Q&A</li>
+                        <li class="mb-2">• Resume screening and candidate matching</li>
+                        <li class="mb-2">• Research paper summarization</li>
+                        <li class="mb-2">• Contract review and compliance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Use Case 3: MCP Integration -->
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="badge bg-info mb-3">Tool Integration</div>
+                <h2 class="h3 mb-3">Model Context Protocol (MCP) Integration</h2>
+                <p class="mb-3">Connect your agents to external tools and services using the Model Context Protocol. Dynamically load and execute tools from MCP servers alongside custom Python functions.</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Connect to MCP servers</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Load tools dynamically</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mix MCP and local functions</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Async tool execution</li>
+                </ul>
+                <div class="code-snippet">
+                    <small class="text-muted d-block mb-2">Example: Connect MCP Server</small>
+                    <code>
+await agent.connect_mcp_server(<br>
+&nbsp;&nbsp;"math_server", server_params<br>
+)<br>
+await agent.load_tools_from_mcp_server(<br>
+&nbsp;&nbsp;"math_server"<br>
+)
+                    </code>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="gradient-box" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);">
+                    <h4 class="mb-3"><i class="fas fa-plug me-2"></i>Perfect For</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">• Workflow automation with external APIs</li>
+                        <li class="mb-2">• Data processing pipelines</li>
+                        <li class="mb-2">• Multi-tool agent orchestration</li>
+                        <li class="mb-2">• Integration with existing systems</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Use Case 4: Persistent Storage -->
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+                <div class="badge bg-warning text-dark mb-3">Data Persistence</div>
+                <h2 class="h3 mb-3">SQLite Memory for Persistent Knowledge</h2>
+                <p class="mb-3">Use SQLite-backed memory for permanent knowledge storage that persists across sessions. Perfect for agents that need to maintain state over time.</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Persistent storage across sessions</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>CRUD operations on memory</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Custom database locations</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Metadata filtering and search</li>
+                </ul>
+                <div class="code-snippet">
+                    <small class="text-muted d-block mb-2">Example: Persistent Memory</small>
+                    <code>
+memory = SQLiteMemory(<br>
+&nbsp;&nbsp;db_path="agent_memory.db"<br>
+)<br>
+agent = create_simple_agent(<br>
+&nbsp;&nbsp;"PersistentAgent", memory=memory<br>
+)
+                    </code>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <div class="gradient-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h4 class="mb-3"><i class="fas fa-database me-2"></i>Perfect For</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">• Multi-session conversations</li>
+                        <li class="mb-2">• Knowledge base management</li>
+                        <li class="mb-2">• User preference tracking</li>
+                        <li class="mb-2">• Audit trails and logging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="row mt-5 pt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="bg-light p-5 rounded-3">
+                    <h3 class="mb-3">Ready to Build Your Own Agent?</h3>
+                    <p class="mb-4">Start creating autonomous AI agents with memory, tool integration, and document processing capabilities.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg"><i class="fas fa-rocket me-2"></i>Get Started Free</a>
+                        <a href="{{ url_for('documentation') }}" class="btn btn-outline-primary btn-lg"><i class="fas fa-book me-2"></i>Full Documentation</a>
+                        <a href="https://github.com/miminions-ai" target="_blank" class="btn btn-outline-secondary btn-lg"><i class="bi bi-github me-2"></i>View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+{% endblock %}

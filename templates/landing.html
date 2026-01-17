@@ -69,32 +69,46 @@
 <!-- Get Started Section -->
 <section id="get-started" class="landing-get-started">
     <div class="container px-5">
-        <h2>Get Started with miminions.ai</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3>Install the Framework</h3>
-                    <p>Start by installing miminions.ai using pip</p>
-                    <pre><code>pip install miminions-ai</code></pre>
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h2 class="mb-4">Get Started with miminions.ai</h2>
+                <p class="lead mb-4">Build powerful autonomous AI agents that can understand complex tasks, make decisions, and execute actions with minimal human intervention. Our framework provides everything you need to create intelligent systems that scale.</p>
+                <div class="mb-4">
+                    <h4 class="mb-3">Why Choose miminions.ai?</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Rapid Development:</strong> Get started in minutes with our intuitive API</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Production Ready:</strong> Built for scale with enterprise-grade reliability</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Flexible Architecture:</strong> Customize agents to fit your unique needs</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> <strong>Open Source:</strong> Join our community and contribute to the future of AI</li>
+                    </ul>
+                </div>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('use_cases') }}" class="btn-landing-primary"><i class="fas fa-lightbulb me-2"></i>Explore Use Cases</a>
+                    <a href="{{ url_for('signup') }}" class="btn-landing-secondary"><i class="fas fa-rocket me-2"></i>Start Building</a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3>Create Your First Agent</h3>
-                    <p>Initialize and configure your AI agent</p>
-                    <pre><code>from miminions import Agent
-agent = Agent("my-first-agent")</code></pre>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3>Run Your Agent</h3>
-                    <p>Set goals and let your agent work</p>
-                    <pre><code>agent.set_goal("your goal here")
-agent.run()</code></pre>
+            <div class="col-lg-5 mt-4 mt-lg-0">
+                <div class="p-4 bg-white shadow-lg rounded-3">
+                    <h5 class="mb-3 text-center"><i class="fas fa-code me-2"></i>Quick Start</h5>
+                    <div class="mb-3">
+                        <small class="text-muted">Install the framework</small>
+                        <pre class="bg-light p-2 rounded mt-1 mb-0"><code>pip install miminions-ai</code></pre>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Create your agent</small>
+                        <pre class="bg-light p-2 rounded mt-1 mb-0"><code>from miminions import Agent
+agent = Agent("my-agent")</code></pre>
+                    </div>
+                    <div>
+                        <small class="text-muted">Deploy and run</small>
+                        <pre class="bg-light p-2 rounded mt-1 mb-0"><code>agent.deploy()
+agent.execute()</code></pre>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="https://github.com/miminions-ai" target="_blank" class="text-decoration-none">
+                            <small><i class="bi bi-github me-1"></i>View Documentation</small>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,7 +120,10 @@ agent.run()</code></pre>
     <div class="container px-5">
         <h2>Ready to Build Something Amazing?</h2>
         <p>Join thousands of developers building the future of autonomous AI</p>
-        <a href="{{ url_for('signup') }}" class="btn-landing-primary">Create Free Account</a>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('signup') }}" class="btn-landing-primary">Create Free Account</a>
+            <a href="{{ url_for('documentation') }}" class="btn-landing-secondary"><i class="fas fa-book me-2"></i>View Documentation</a>
+        </div>
     </div>
 </section>
 

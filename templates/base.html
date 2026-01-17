@@ -42,7 +42,8 @@
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/agents' or request.path.startswith('/agents/chat') else '' }}" href="{{ url_for('agents') }}">Agents</a></li>
                             {% else %}
                             <!-- Public navigation -->
-                            <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/use-cases' else '' }}" href="{{ url_for('use_cases') }}">Features</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/documentation' else '' }}" href="{{ url_for('documentation') }}">Documentation</a></li>
                             <li class="nav-item"><a class="nav-link" href="https://github.com/miminions-ai" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
                             {% endif %}
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/about' else '' }}" href="{{ url_for('about') }}">About</a></li>

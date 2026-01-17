@@ -219,6 +219,14 @@ def message(assistant_id, thread_id):
 def about():
     return render_template('about.html')
 
+@app.route('/use-cases')
+def use_cases():
+    return render_template('use-cases.html')
+
+@app.route('/documentation')
+def documentation():
+    return render_template('documentation.html')
+
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
