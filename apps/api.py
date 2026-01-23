@@ -1,6 +1,6 @@
-import openai, os, boto3
-from flask import jsonify
-from pathlib import Path
+import openai
+import os
+import boto3
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -80,17 +80,6 @@ def list_assistants():
     response = openai.beta.assistants.list()
     return [assistant.model_dump() for assistant in response.data]
 
-def get_assistant(assistant_id):
-    # try:
-    #     response = openai.beta.assistants.retrieve(assistant_id)
-    #     return jsonify(response.dict())
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 404
-    return True
-
-def list_threads(assistant_id, user_id):
-    response = openai.beta.threads.list()
-    return jsonify([threads.model_dump() for threads in response.data])
 
 def del_assistant(assistant_id):
     openai.beta.assistants.delete(assistant_id)
