@@ -342,8 +342,6 @@ def attach_file(assistant_id):
         return jsonify({"error": str(e)}), 400
 
 
-# Elastic Beanstalk looks for 'application' variable
-application = app
 
 if __name__ == "__main__":
-    application.run(host="0.0.0.0", port=5001, debug=True)
+   app.run(host="0.0.0.0", port=5010, debug=True)
