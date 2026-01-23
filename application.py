@@ -1,42 +1,22 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, url_for, session, Response
+import uuid
+import time
+from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-#from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from dotenv import load_dotenv
 from types import SimpleNamespace
-# from werkzeug.utils import secure_filename
-# from decimal import Decimal
-import json
-# import requests
-# import asyncio
-# import string
-# import random
-
-
-import uuid
-import time
 import apps.store as store
 import apps.api as api
-#from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "defaultsecret")  # Change this in production
-app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY", "defaultjwtsecret")  # Change this in production
+app.secret_key = os.getenv("SECRET_KEY", "defaultsecret")
+app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY", "defaultjwtsecret")
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-
-# Flask-Session Configuration
-app.config["SESSION_TYPE"] = os.getenv("SESSION_TYPE", "filesystem")
-app.config["SESSION_PERMANENT"] = False  # Ensure session expires on browser close
-app.config["SESSION_USE_SIGNER"] = True  # Sign session cookies for security
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "defaultjwtsecret")  
-#Session(app)
-#CORS(app)
-
 
 jwt = JWTManager(app)
 login_manager = LoginManager(app)
@@ -238,19 +218,15 @@ def faq():
 
 
 
-######### API
+# JWT API Endpoints
 
 def get_user_id_from_token():
-    try:
-        current_user_id = get_jwt_identity().split(":::")
-        if current_user_id:
-            return current_user_id[0]
-        return "Invalid token"
-    except jwt.ExpiredSignatureError:
-        return "Token expired"
-    except jwt.InvalidTokenError:
-        return "Invalid token"
-    
+    """Extract user ID from JWT token."""
+    current_user_id = get_jwt_identity().split(":::")
+    if current_user_id:
+        return current_user_id[0]
+    return None
+
 
 @app.route('/apilogin', methods=['POST'])
 def apilogin():
@@ -335,12 +311,11 @@ def delete_assistant(assistant_id):
 def list_threads(assistant_id):
     try:
         user_id = get_user_id_from_token()
-        #response = api.list_threads(assistant_id, user_id)
         response = store.get_thread(assistant_id, user_id)
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 
 def uploadFiles(request):
     file = request.files['file']
@@ -367,6 +342,8 @@ def attach_file(assistant_id):
         return jsonify({"error": str(e)}), 400
 
 
+# Elastic Beanstalk looks for 'application' variable
+application = app
 
 if __name__ == "__main__":
-   app.run(host="0.0.0.0", port=5010, debug=True)
+    application.run(host="0.0.0.0", port=5000, debug=True)
