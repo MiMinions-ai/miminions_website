@@ -1,105 +1,94 @@
 # miminions.ai
 
-The official web application for [miminions.ai](https://miminions.ai) - an open-source framework for creating, deploying, and managing agentic AI systems at scale.
-
-## Overview
-
-miminions.ai is a powerful framework that enables developers to build autonomous AI agents that can think, plan, and execute tasks independently.
+The official web application for miminions.ai - an open-source framework for creating, deploying, and managing agentic AI systems at scale.
 
 ## Features
 
-- **Agentic AI Framework**: Build autonomous AI agents that think, plan, and execute
-- **User Authentication**: Secure login/signup with Flask-Login and JWT
-- **AI Assistant Management**: Create and manage AI assistants
-- **Real-time Chat Interface**: Interactive chat with AI agents
-- **File Upload & Management**: Handle files with AWS S3 integration
-- **Docker Support**: Easy containerized deployment
+- User Authentication with Flask-Login and JWT
+- AI Assistant Management via OpenAI API
+- Real-time Chat Interface
+- File Upload to AWS S3
 
 ## Tech Stack
 
-- **Backend**: Flask, Python
-- **Authentication**: Flask-Login, JWT
-- **AI Integration**: OpenAI, FAISS, Sentence Transformers
-- **Storage**: AWS S3
-- **Frontend**: Jinja2 templates, CSS, JavaScript
-- **Containerization**: Docker
+- Backend: Flask, Python 3.10+
+- Authentication: Flask-Login, Flask-JWT-Extended
+- AI: OpenAI Assistants API
+- Database: AWS DynamoDB
+- Storage: AWS S3
+- Deployment: AWS Elastic Beanstalk
 
 ## Project Structure
 
 ```
-website/
-├── apps/                  # Application modules (API, database, storage)
+miminions_website/
+├── apps/                  # Application modules
+│   ├── api.py             # OpenAI API integration
+│   ├── database.py        # DynamoDB connection
+│   └── store.py           # Database operations
 ├── static/                # Static assets (CSS, JS, images)
 ├── templates/             # Jinja2 HTML templates
-├── Documentation/         # Project documentation
-├── s3uploads/             # File upload directory
-├── run.py                 # Application entry point
+├── .ebextensions/         # Elastic Beanstalk configuration
+├── application.py         # Flask application entry point
 ├── requirements.txt       # Python dependencies
-├── Dockerfile             # Docker configuration
-└── docker-compose.yml     # Docker Compose configuration
+└── example.env            # Environment variables template
 ```
 
-## Quick Start
-
-### Local Development
+## Local Development
 
 1. **Clone and setup**:
-   ```bash
-   git clone https://github.com/miminions-ai/miminions_website.git
-   cd miminions_website
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment**:
-   ```bash
-   cp example.env .env
-   # Edit .env with your configuration
-   ```
-
-4. **Run the application**:
-   ```bash
-   python run.py
-   ```
-
-### Docker Deployment
-
 ```bash
-docker-compose up --build
+git clone https://github.com/miminions-ai/miminions_website.git
+cd miminions_website
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-## Environment Variables
+2. **Install dependencies**:
+```bash
+pip install -r requirements.txt
+```
 
-See `example.env` for required configuration:
+3. **Configure environment**:
+```bash
+cp example.env .env
+# Edit .env with your configuration
+```
 
-- `SECRET_KEY`: Flask secret key
-- `JWT_SECRET_KEY`: JWT authentication secret
-- AWS credentials (for S3 file storage)
-- OpenAI API key (for AI features)
+4. **Run the application**:
+```bash
+python application.py
+```
+Visit http://localhost:5000
 
-## API Endpoints
+## AWS Elastic Beanstalk Deployment
 
-- `/apilogin`: API authentication
-- `/assistants`: Assistant management (CRUD)
-- `/threads`: Thread management
-- `/attach_file`: File attachment endpoints
+1. Install EB CLI: `pip install awsebcli`
+2. Initialize: `eb init -p python-3.10 miminions-app`
+3. Create environment: `eb create miminions-prod`
+4. Configure environment variables in AWS Console
+5. Deploy: `eb deploy`
 
-## Contributing
+## Required Environment Variables
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | Your OpenAI API key |
+| `SECRET_KEY` | Flask secret key |
+| `JWT_SECRET_KEY` | JWT authentication secret |
+| `AWS_REGION` | AWS region (e.g., us-east-1) |
+| `AWS_ACCESS_KEY_ID` | AWS access key |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key |
+| `S3_BUCKET` | S3 bucket name |
+| `S3_REGION` | S3 bucket region |
+| `LOCAL_UPLOAD_FOLDER` | Local temp folder (./uploads) |
+
+## AWS Resources Required
+
+- **DynamoDB Tables**: users, assistants, user_threads, user_messages, vector_files
+- **S3 Bucket**: For file uploads
+- **IAM Role**: EB instance role with DynamoDB and S3 permissions
 
 ## License
 
-MIT License - see LICENSE file for details.
-
----
-
-Built with ❤️ by the miminions.ai team
+MIT License

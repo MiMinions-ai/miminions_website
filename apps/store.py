@@ -20,10 +20,6 @@ def add_user(data):
     )
 
 def get_thread(assistant_id, user_id):
-    # response = dbtables.threads.scan(
-    #     FilterExpression=Attr("id").eq(assistant_id)
-    # )
-
     response = dbtables.threads.query(
         KeyConditionExpression=Key('id').eq(assistant_id) & Key('user_id').eq(user_id)
     )
@@ -37,12 +33,10 @@ def create_message(data):
         dbtables.messages.put_item(Item=data)
     except Exception as e:
         print(str(e))
-        #return jsonify({"api error": str(e)}), 400
+
 
 def get_agents():
-    response = dbtables.assistants.scan(
-        #FilterExpression=Attr("user_id").eq(current_user.user_id)
-    )
+    response = dbtables.assistants.scan()
     return response.get("Items", [])
 
 def add_assistant(assistant_data, user_id, vector_id):
@@ -80,7 +74,6 @@ def list_assistants(user_id):
     return response.get("Items", [])
 
 def get_assistant(assistant_id):
-    #response = dbtables.assistants.get_item(Key={"id": assistant_id})
     response = dbtables.assistants.query(
         KeyConditionExpression=Key("id").eq(assistant_id)
     )
