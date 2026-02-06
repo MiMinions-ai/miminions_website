@@ -29,7 +29,8 @@ miminions_website/
 ├── static/                # Static assets (CSS, JS, images)
 ├── templates/             # Jinja2 HTML templates
 ├── .ebextensions/         # Elastic Beanstalk configuration
-├── application.py         # Flask application entry point
+├── application.py         # Flask app (production/EB entry point)
+├── run.py                 # Local development runner
 ├── requirements.txt       # Python dependencies
 └── example.env            # Environment variables template
 ```
@@ -57,9 +58,15 @@ cp example.env .env
 
 4. **Run the application**:
 ```bash
+python run.py
+```
+Visit http://localhost:5010 (development mode with debug enabled)
+
+Or run directly with:
+```bash
 python application.py
 ```
-Visit http://localhost:5000
+Visit http://localhost:5000 (production mode)
 
 ## AWS Elastic Beanstalk Deployment
 

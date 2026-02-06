@@ -1,8 +1,0 @@
-refactor checklist
-
-what's left:
-- DynamoDB review (see how it's used)
-- S3 bucket review (same as above)
-- update .env variables
-- check all 3 python files inside apps and investigate what they actually do
-
