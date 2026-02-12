@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -32,7 +33,7 @@ class User(UserMixin):
         self.email = user_data.get("email")
 
     def to_dict(self):
-        return {"id": self.id, "name": self.name, "email": self.email}
+        return {"id": self.user_id, "email": self.email}
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -48,41 +49,57 @@ def home():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
 
-        user_add_data = SimpleNamespace(
-            id =  str(uuid.uuid4()),
-            email = email,
-            password = generate_password_hash(password)
-        )
+        # Validate email format
+        if not email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+            flash('Please enter a valid email address.', 'danger')
+            return render_template('signup.html')
+
+        # Validate password length
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return render_template('signup.html')
 
         user_data = store.get_user(email)
 
-        if not user_data:
-            store.add_user(user_add_data)
-            flash('Register successful!', 'success')
-            return redirect(url_for('login'))
-        else:
-            flash('Already Registered', 'danger')
-        
+        if user_data:
+            flash('An account with this email already exists.', 'danger')
+            return render_template('signup.html')
+
+        user_add_data = SimpleNamespace(
+            id=str(uuid.uuid4()),
+            email=email,
+            password=generate_password_hash(password)
+        )
+        store.add_user(user_add_data)
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('login'))
+
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
 
         user_data = store.get_user(email)
 
-        if user_data and not check_password_hash(user_data["password"], password):
-            flash('Invalid credentials', 'danger')
-        else:
-            user = User(user_data)
-            login_user(user)
-            flash('Login successful!', 'success')
-            return redirect(url_for('home'))
+        if not user_data:
+            flash('No account found with that email.', 'danger')
+            return render_template('login.html')
+
+        if not check_password_hash(user_data["password"], password):
+            flash('Incorrect password.', 'danger')
+            return render_template('login.html')
+
+        user = User(user_data)
+        login_user(user)
+        flash('Login successful!', 'success')
+        return redirect(url_for('home'))
+
     return render_template('login.html')
 
 @app.route("/logout")
