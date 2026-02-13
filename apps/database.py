@@ -50,7 +50,7 @@ class MockTable:
         return {'ResponseMetadata': {'HTTPStatusCode': 200}}
 
 
-class MockDynamoDB:
+class FakeDynamoDB:
     def __init__(self):
         pass
 
@@ -60,22 +60,27 @@ class MockDynamoDB:
 
 def _connect_dynamodb():
     """Establish connection to DynamoDB."""
-    # Check if running in test/local mode
+    # Check environment - use local DB if not in production
+    if os.getenv("FLASK_ENV") != "production":
+        logger.info("Using FakeDynamoDB for local/development mode (FLASK_ENV != production)")
+        return FakeDynamoDB()
+    
+    # Check if running in test/local mode via command-line flags
     use_mock = any(arg in sys.argv for arg in ["--test", "--local"])
     
     if use_mock:
-        logger.info("Using MockDynamoDB for local/test mode")
-        return MockDynamoDB()
+        logger.info("Using FakeDynamoDB for local/test mode")
+        return FakeDynamoDB()
     
     region = os.getenv("AWS_REGION", "us-east-2")
 
     try:
         resource = boto3.resource("dynamodb", region_name=region)
         list(resource.tables.limit(1))
-        logger.info("Connected to DynamoDB")
+        logger.info("Connected to AWS DynamoDB")
         return resource
     except Exception as exc:
-        logger.warning(f"DynamoDB connection failed: {exc}. Falling back to MockDynamoDB")
-        return MockDynamoDB()
+        logger.warning(f"DynamoDB connection failed: {exc}. Falling back to FakeDynamoDB")
+        return FakeDynamoDB()
 
 db = _connect_dynamodb()

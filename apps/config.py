@@ -35,14 +35,17 @@ def get_config():
     """
     Determine configuration based on environment and arguments.
     """
+    # Check FLASK_ENV environment variable
+    flask_env = os.getenv("FLASK_ENV", "local").lower()
+    
+    # Also check for command-line flags
     load_local = any(arg in sys.argv for arg in ["--local", "--test", "--deploy"])
     
-    if load_local:
-        print("WARNING: Running in Local/Test Mode - Security headers relaxed")
-        return TestingConfig
+    if flask_env == "production" and not load_local:
+        # Check if Secret Key is set for production
+        if not os.getenv("SECRET_KEY"):
+            raise RuntimeError("SECRET_KEY environment variable is required for production")
+        return ProductionConfig
     
-    # Check if Secret Key is set for production
-    if not os.getenv("SECRET_KEY"):
-         raise RuntimeError("SECRET_KEY environment variable is required")
-         
-    return ProductionConfig
+    print(f"WARNING: Running in Local/Development Mode (FLASK_ENV={flask_env}) - Security headers relaxed")
+    return TestingConfig

@@ -47,16 +47,18 @@ miminions_website/
    # Edit .env with your SECRET_KEY and AWS credentials
    ```
 
-2. Run the application in test mode (uses local JSON database):
-   ```bash
-   python application.py --test
-   ```
-   This creates a `users_local_db.json` file instead of connecting to AWS DynamoDB.
-
-3. Run for production (requires AWS credentials):
+2. Run the application:
    ```bash
    python application.py
    ```
+   
+   The application will use local JSON database (`users_local_db.json`) when `FLASK_ENV` is not set to `production`.
+   
+   You can also use the `--test` flag for explicit test mode:
+   ```bash
+   python application.py --test
+   ```
+   
    Visit http://localhost:5000
 
 ## Environment Variables
@@ -64,7 +66,8 @@ miminions_website/
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SECRET_KEY` | Yes | Flask secret key for sessions |
-| `AWS_REGION` | Yes | AWS region (default: `us-east-2`) |
+| `FLASK_ENV` | Yes | Set to `production` for AWS DynamoDB, or `local` for local JSON database |
+| `AWS_REGION` | Production | AWS region (default: `us-east-2`) |
 | `AWS_ACCESS_KEY_ID` | Local only | AWS credentials for local dev |
 | `AWS_SECRET_ACCESS_KEY` | Local only | AWS credentials for local dev |
 
