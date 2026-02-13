@@ -17,7 +17,7 @@
                 <p class="lead">The open-source framework for creating, deploying, and managing agentic AI systems at scale</p>
                 <div class="cta-buttons">
                     <a href="#get-started" class="btn-landing-primary">Get Started</a>
-                    <a href="#waitlist" class="btn-landing-secondary" onclick="showWaitlist(event)">Join Waitlist</a>
+                    <a href="{{ url_for('documentation') }}" class="btn-landing-secondary">Documentation</a>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block">
@@ -127,51 +127,4 @@ agent.execute()</code></pre>
     </div>
 </section>
 
-<!-- Waitlist Popup -->
-<div id="waitlist-popup" class="waitlist-popup">
-    <div class="waitlist-content">
-        <h3>Join the Waitlist</h3>
-        <p class="lead">Be the first to know when new features launch</p>
-        <form id="waitlist-form" onsubmit="handleWaitlistSubmit(event)">
-            <input type="text" class="form-control" id="waitlist-name" name="name" placeholder="Your Name" required>
-            <input type="email" class="form-control" id="waitlist-email" name="email" placeholder="Your Email" required>
-            <textarea class="form-control" id="waitlist-usecase" name="use-case" placeholder="Tell us about your use case (optional)" rows="3"></textarea>
-            <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn-landing-primary flex-grow-1">Join Waitlist</button>
-                <button type="button" class="btn-landing-secondary" onclick="closeWaitlist()">Close</button>
-            </div>
-        </form>
-        <div id="submission-message" class="submission-message" style="display: none;"></div>
-    </div>
-</div>
-
-<script>
-function showWaitlist(event) {
-    event.preventDefault();
-    document.getElementById('waitlist-popup').classList.add('show');
-}
-
-function closeWaitlist() {
-    document.getElementById('waitlist-popup').classList.remove('show');
-}
-
-function handleWaitlistSubmit(event) {
-    event.preventDefault();
-    
-    const messageDiv = document.getElementById('submission-message');
-    messageDiv.textContent = 'Thank you for joining our waitlist! We\'ll be in touch soon.';
-    messageDiv.className = 'submission-message success';
-    messageDiv.style.display = 'block';
-    document.getElementById('waitlist-form').reset();
-    
-    setTimeout(closeWaitlist, 3000);
-}
-
-// Close popup when clicking outside
-document.getElementById('waitlist-popup').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeWaitlist();
-    }
-});
-</script>
 {% endblock %}

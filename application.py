@@ -81,6 +81,12 @@ def signup():
             flash('Password must be at least 8 characters long.', 'danger')
             return render_template('signup.html')
 
+        # Validate passwords match
+        confirm_password = request.form.get('confirm_password', '')
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('signup.html')
+
         user_data = store.get_user(email)
 
         if user_data:
@@ -140,8 +146,11 @@ def use_cases():
 def documentation():
     return render_template('documentation.html')
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        flash('Thank you for your message! We will get back to you soon.', 'success')
+        return redirect(url_for('contact'))
     return render_template('contact.html')
 
 @app.route('/faqs')
