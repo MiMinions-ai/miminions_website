@@ -29,36 +29,32 @@
             <!-- Navigation-->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-2">
-                    <a class="navbar-brand" href="{{ url_for('home') }}">
+                    <a class="navbar-brand" href="{{ url_for('main.home') }}">
                         <img src="{{ url_for('static', filename='images/logo.png') }}" width="40" />
                         <span class="fw-bolder text-primary">miminions.ai</span>
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/' else '' }}" href="{{ url_for('home') }}">Home</a></li>
-                            {% if current_user.is_authenticated %}
-                            <!-- Authenticated navigation -->
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/agents' or request.path.startswith('/agents/chat') else '' }}" href="{{ url_for('agents') }}">Agents</a></li>
-                            {% else %}
-                            <!-- Public navigation -->
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/use-cases' else '' }}" href="{{ url_for('use_cases') }}">Features</a></li>
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/documentation' else '' }}" href="{{ url_for('documentation') }}">Documentation</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/' else '' }}" href="{{ url_for('main.home') }}">Home</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/use-cases' else '' }}" href="{{ url_for('main.use_cases') }}">Features</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/documentation' else '' }}" href="{{ url_for('main.documentation') }}">Documentation</a></li>
                             <li class="nav-item"><a class="nav-link" href="https://github.com/miminions-ai" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
-                            {% endif %}
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/about' else '' }}" href="{{ url_for('about') }}">About</a></li>
-                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/contact' else '' }}" href="{{ url_for('contact') }}">Contact</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/about' else '' }}" href="{{ url_for('main.about') }}">About</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/contact' else '' }}" href="{{ url_for('main.contact') }}">Contact</a></li>
                         </ul>
                         <div class="dropdown ms-3">
                             {% if current_user.is_authenticated %}
                             <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ current_user["email"].split('@')[0] }}
+                                {{ current_user.email.split('@')[0] }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                              <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="bi bi-person-circle"></i> Profile</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                             </ul>
                             {% else %}
-                            <a class="btn btn-primary" href="{{ url_for('login') }}">Login</a>
+                            <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Login</a>
                             {% endif %}
                         </div>
                     </div>
@@ -86,13 +82,13 @@
         <footer class="text-white py-4 mt-auto footer-04">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><p class="copyright small m-0">Copyright &copy;<script>document.write(new Date().getFullYear());</script> <a href="{{ url_for('home') }}">miminions.ai</a>. All rights reserved.</p></div>
+                    <div class="col-auto"><p class="copyright small m-0">Copyright &copy;<script>document.write(new Date().getFullYear());</script> <a href="{{ url_for('main.home') }}">miminions.ai</a>. All rights reserved.</p></div>
                     <div class="col-auto">
                         <a class="small" href="https://github.com/miminions-ai" target="_blank"><i class="bi bi-github"></i> GitHub</a>
                         <span class="mx-1">&middot;</span>
                         <a class="small" href="https://x.com/miminions_ai" target="_blank"><i class="bi bi-twitter-x"></i> Twitter</a>
                         <span class="mx-1">&middot;</span>
-                        <a class="small" href="{{ url_for('contact') }}">Contact</a>
+                        <a class="small" href="{{ url_for('main.contact') }}">Contact</a>
                     </div>
                 </div>
             </div>
