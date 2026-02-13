@@ -60,29 +60,13 @@ class MockDynamoDB:
 
 def _connect_dynamodb():
     """Establish connection to DynamoDB."""
-    # Check for local testing flags
-    if any(arg in sys.argv for arg in ["--local", "--test", "--deploy"]):
-        logger.info("Using Local JSON Mock Database due to command line flag")
-        return MockDynamoDB()
-
     region = os.getenv("AWS_REGION", "us-east-2")
-    access_key = os.getenv("AWS_ACCESS_KEY_ID")
-    secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-
-    kwargs = {"region_name": region}
-    if access_key and secret_key:
-        kwargs["aws_access_key_id"] = access_key
-        kwargs["aws_secret_access_key"] = secret_key
 
     try:
-        resource = boto3.resource("dynamodb", **kwargs)
-        # Verify connectivity by listing tables (lightweight call)
+        resource = boto3.resource("dynamodb", region_name=region)
         list(resource.tables.limit(1))
-        logger.info("DynamoDB connection established (region=%s)", region)
         return resource
     except Exception as exc:
-        logger.error("Failed to connect to DynamoDB: %s", exc)
-        raise RuntimeError(f"DynamoDB connection failed: {exc}") from exc
-
+        raise RuntimeError("DynamoDB connection failed") from exc
 
 db = _connect_dynamodb()
