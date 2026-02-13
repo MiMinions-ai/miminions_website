@@ -1,6 +1,7 @@
 .git
 .gitignore
 .env
+example.env
 __pycache__
 *.pyc
 *.pyo
@@ -9,3 +10,8 @@ __pycache__
 .venv
 venv
 env
+*.json
+*.log
+.vscode/
+.idea/
+

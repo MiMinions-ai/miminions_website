@@ -1,10 +1,22 @@
-from flask import render_template, request, flash, redirect, url_for, current_app
+from flask import render_template, request, flash, redirect, url_for, current_app, jsonify
 from flask_login import current_user
 from apps.main import bp
+from apps.store import users_table
 
 @bp.route('/')
 def home():
     return render_template('landing.html')
+
+@bp.route('/health')
+def health():
+    """Health check endpoint for Elastic Beanstalk."""
+    try:
+        # Test DynamoDB connection with a health check item
+        users_table.get_item(Key={"email": "__healthcheck__"})
+        return jsonify({"status": "healthy", "database": "connected"}), 200
+    except Exception as e:
+        current_app.logger.error(f"Health check failed: {e}")
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
 
 @bp.route('/about')
 def about():
