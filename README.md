@@ -47,7 +47,13 @@ miminions_website/
    # Edit .env with your SECRET_KEY and AWS credentials
    ```
 
-4. **Run the application:**
+2. Run the application in test mode (uses local JSON database):
+   ```bash
+   python application.py --test
+   ```
+   This creates a `users_local_db.json` file instead of connecting to AWS DynamoDB.
+
+3. Run for production (requires AWS credentials):
    ```bash
    python application.py
    ```
