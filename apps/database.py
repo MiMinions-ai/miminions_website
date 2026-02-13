@@ -60,13 +60,22 @@ class MockDynamoDB:
 
 def _connect_dynamodb():
     """Establish connection to DynamoDB."""
+    # Check if running in test/local mode
+    use_mock = any(arg in sys.argv for arg in ["--test", "--local"])
+    
+    if use_mock:
+        logger.info("Using MockDynamoDB for local/test mode")
+        return MockDynamoDB()
+    
     region = os.getenv("AWS_REGION", "us-east-2")
 
     try:
         resource = boto3.resource("dynamodb", region_name=region)
         list(resource.tables.limit(1))
+        logger.info("Connected to DynamoDB")
         return resource
     except Exception as exc:
-        raise RuntimeError("DynamoDB connection failed") from exc
+        logger.warning(f"DynamoDB connection failed: {exc}. Falling back to MockDynamoDB")
+        return MockDynamoDB()
 
 db = _connect_dynamodb()

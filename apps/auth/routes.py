@@ -68,12 +68,12 @@ def login():
         if not user_data:
             current_app.logger.warning(f"Login failed - user not found: {email}")
             flash('No account found with that email.', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', email=email)
 
         if not check_password_hash(user_data["password"], password):
             current_app.logger.warning(f"Login failed - incorrect password: {email}")
             flash('Incorrect password.', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', email=email)
 
         user = User(user_data)
         login_user(user)
@@ -91,3 +91,8 @@ def logout():
     current_app.logger.info(f"User logged out: {email}")
     flash('Logged out successfully', 'info')
     return redirect(url_for('main.home'))
+
+@bp.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')

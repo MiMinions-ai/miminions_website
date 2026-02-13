@@ -37,12 +37,9 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/' else '' }}" href="{{ url_for('main.home') }}">Home</a></li>
-                            {% if not current_user.is_authenticated %}
-                            <!-- Public navigation -->
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/use-cases' else '' }}" href="{{ url_for('main.use_cases') }}">Features</a></li>
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/documentation' else '' }}" href="{{ url_for('main.documentation') }}">Documentation</a></li>
                             <li class="nav-item"><a class="nav-link" href="https://github.com/miminions-ai" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
-                            {% endif %}
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/about' else '' }}" href="{{ url_for('main.about') }}">About</a></li>
                             <li class="nav-item"><a class="nav-link {{ 'active bg-gradient-primary-to-secondary text-white' if request.path == '/contact' else '' }}" href="{{ url_for('main.contact') }}">Contact</a></li>
                         </ul>
@@ -52,7 +49,9 @@
                                 {{ current_user.email.split('@')[0] }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                              <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="bi bi-person-circle"></i> Profile</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                             </ul>
                             {% else %}
                             <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Login</a>

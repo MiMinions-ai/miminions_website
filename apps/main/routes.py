@@ -21,7 +21,7 @@ def documentation():
 @bp.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        # In a real application, you would send an email here
+        # Send email here
         current_app.logger.info(f"Contact form submitted by {request.form.get('email')}")
         flash('Thank you for your message! We will get back to you soon.', 'success')
         return redirect(url_for('main.contact'))

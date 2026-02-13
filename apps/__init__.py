@@ -9,32 +9,26 @@ def create_app(config_class=None):
     if config_class is None:
         config_class = get_config()
 
-    # Initialize Flask app with correct folder paths
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.from_object(config_class)
 
-    # Configure Logging
     configure_logging(app)
     
-    # Initialize Extensions
     login_manager.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
 
-    # Register Blueprints
     from apps.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
     
     from apps.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    # Register global handlers
     register_handlers(app)
 
     return app
 
 def configure_logging(app):
-    # Only configure if not already configured (to avoid dupes in tests)
     if not app.logger.handlers:
         logging.basicConfig(
             level=logging.INFO,
@@ -58,12 +52,10 @@ def register_handlers(app):
             "img-src 'self' data:; "
             "connect-src 'self'"
         )
-        # Use current_user safely (it's available via Flask-Login)
         try:
             if current_user.is_authenticated:
                 response.headers["Cache-Control"] = "no-store"
         except:
-             # In case context is missing
              pass
         return response
 

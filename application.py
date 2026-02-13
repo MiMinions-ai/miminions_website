@@ -1,8 +1,11 @@
 from apps import create_app
+import sys
 
-# Create the application configuration
-# This calls get_config() internally which checks for local/test flags
 application = create_app()
-
+ 
 if __name__ == "__main__":
-    application.run()
+    if "--test" in sys.argv:
+        print("Running in TEST mode with MockDynamoDB")
+        application.run(debug=True, port=5000)
+    else:
+        application.run()
