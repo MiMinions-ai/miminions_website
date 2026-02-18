@@ -41,14 +41,20 @@
                     </div>
                   </div>
                   <div class="col-12">
-                    <div class="form-floating mb-3">
-                      <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
-                      <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                      <div class="form-floating flex-grow-1">
+                        <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
+                        <label for="password" class="form-label">Password</label>
+                      </div>
+                      <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                              data-password-toggle="password" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                      </button>
                     </div>
                   </div>
                   <div class="col-12">
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" name="remember_me" id="remember_me">
+                      <input class="form-check-input" type="checkbox" value="1" name="remember_me" id="remember_me">
                       <label class="form-check-label text-secondary" for="remember_me">
                         Keep me logged in
                       </label>
@@ -61,10 +67,24 @@
                   </div>
                 </div>
               </form>
+
+              {% if show_resend_verification and email %}
+              <hr class="my-4">
+              <p class="text-secondary mb-2">Didn't receive your verification email?</p>
+              <form method="POST" action="{{ url_for('auth.resend_verification') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="email" value="{{ email }}"/>
+                <div class="d-grid">
+                  <button class="btn btn-outline-primary" type="submit">Resend verification email</button>
+                </div>
+              </form>
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+<script src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
 {% endblock %}

@@ -1,6 +1,7 @@
 import logging
 from flask import Flask, request, render_template
 from flask_login import current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from apps.config import get_config
 from apps.extensions import login_manager, csrf, limiter
@@ -11,6 +12,10 @@ def create_app(config_class=None):
 
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.from_object(config_class)
+
+    # Trust X-Forwarded-Proto/Host from the EB load balancer so that
+    # url_for(..., _external=True) generates https:// URLs in production.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     configure_logging(app)
     

@@ -2,6 +2,8 @@ from flask import render_template, request, flash, redirect, url_for, current_ap
 from flask_login import current_user
 from apps.main import bp
 from apps.store import users_table
+from apps.email_service import send_contact_email
+from apps.utils import validate_email
 
 @bp.route('/')
 def home():
@@ -33,9 +35,26 @@ def documentation():
 @bp.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        # Send email here
-        current_app.logger.info(f"Contact form submitted by {request.form.get('email')}")
-        flash('Thank you for your message! We will get back to you soon.', 'success')
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        message = request.form.get('message', '').strip()
+
+        if not name or not email or not message:
+            flash('Please fill in all required fields.', 'danger')
+            return render_template('contact.html')
+
+        if not validate_email(email):
+            flash('Please enter a valid email address.', 'danger')
+            return render_template('contact.html')
+
+        success = send_contact_email(name, email, phone, message)
+        if success:
+            current_app.logger.info(f"Contact form submitted by {email}")
+            flash('Thank you for your message! We will get back to you soon.', 'success')
+        else:
+            current_app.logger.error(f"Failed to send contact form email from {email}")
+            flash('Something went wrong sending your message. Please try again later.', 'danger')
         return redirect(url_for('main.contact'))
     return render_template('contact.html')
 

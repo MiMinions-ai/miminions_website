@@ -1,13 +1,21 @@
 import re
 
+
+def normalize_email(email):
+    """Normalize email input for consistent user lookups/storage."""
+    if not email:
+        return ""
+    return email.strip().lower()
+
 def validate_email(email):
     """
     Validates email format using regex.
     Returns True if valid, False otherwise.
     """
-    if not email:
+    normalized = normalize_email(email)
+    if not normalized:
         return False
-    return bool(re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email))
+    return bool(re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', normalized))
 
 def validate_password(password):
     """

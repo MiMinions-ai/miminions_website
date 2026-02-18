@@ -2,7 +2,6 @@ import logging
 import os
 import sys
 import json
-from types import SimpleNamespace
 
 import boto3
 from dotenv import load_dotenv
@@ -74,13 +73,10 @@ def _connect_dynamodb():
     
     region = os.getenv("AWS_REGION", "us-east-2")
 
-    try:
-        resource = boto3.resource("dynamodb", region_name=region)
-        list(resource.tables.limit(1))
-        logger.info("Connected to AWS DynamoDB")
-        return resource
-    except Exception as exc:
-        logger.warning(f"DynamoDB connection failed: {exc}. Falling back to FakeDynamoDB")
-        return FakeDynamoDB()
+    # boto3 is lazy — the actual connection is made on the first operation.
+    # Do NOT fall back to FakeDynamoDB here: a silent fallback in production
+    # would write data to the instance's ephemeral disk and lose it silently.
+    logger.info(f"Using AWS DynamoDB in region {region}")
+    return boto3.resource("dynamodb", region_name=region)
 
 db = _connect_dynamodb()

@@ -7,10 +7,16 @@ load_dotenv()
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", os.getenv("SECRET_KEY"))
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     # Default secure to True, override in specific configs if needed
     SESSION_COOKIE_SECURE = True
+
+    # Resend email config
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+    MAIL_FROM = os.getenv("MAIL_FROM", "info@miminions.ai")
+    CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "info@miminions.ai")
 
     @staticmethod
     def init_app(app):
@@ -42,9 +48,10 @@ def get_config():
     load_local = any(arg in sys.argv for arg in ["--local", "--test", "--deploy"])
     
     if flask_env == "production" and not load_local:
-        # Check if Secret Key is set for production
-        if not os.getenv("SECRET_KEY"):
-            raise RuntimeError("SECRET_KEY environment variable is required for production")
+        # Validate all required production secrets
+        missing = [k for k in ("SECRET_KEY", "JWT_SECRET_KEY", "RESEND_API_KEY") if not os.getenv(k)]
+        if missing:
+            raise RuntimeError(f"Missing required environment variables for production: {', '.join(missing)}")
         return ProductionConfig
     
     print(f"WARNING: Running in Local/Development Mode (FLASK_ENV={flask_env}) - Security headers relaxed")
