@@ -9,6 +9,7 @@ from apps.extensions import limiter
 import apps.store as store
 from apps.models import User
 from apps.utils import validate_email, validate_password
+from apps.email_service import send_verification_email, verify_token
 
 @bp.route('/signup', methods=['GET', 'POST'])
 @limiter.limit("3 per minute")
@@ -35,6 +36,19 @@ def signup():
             flash('Passwords do not match.', 'danger')
             return render_template('signup.html')
 
+        # Collect profile fields
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        date_of_birth = request.form.get('date_of_birth', '').strip()
+
+        if not first_name or not last_name:
+            flash('Please enter your first and last name.', 'danger')
+            return render_template('signup.html')
+
+        if not date_of_birth:
+            flash('Please enter your date of birth.', 'danger')
+            return render_template('signup.html')
+
         user_data = store.get_user(email)
 
         if user_data:
@@ -45,11 +59,18 @@ def signup():
         user_add_data = SimpleNamespace(
             id=str(uuid.uuid4()),
             email=email,
-            password=generate_password_hash(password)
+            password=generate_password_hash(password),
+            first_name=first_name,
+            last_name=last_name,
+            date_of_birth=date_of_birth,
         )
         store.add_user(user_add_data)
         current_app.logger.info(f"New user registered: {email}")
-        flash('Registration successful! Please log in.', 'success')
+
+        # Send verification email
+        send_verification_email(email)
+
+        flash('Registration successful! Please check your email to verify your account, then log in.', 'success')
         return redirect(url_for('auth.login'))
 
     return render_template('signup.html')
@@ -96,3 +117,50 @@ def logout():
 @login_required
 def profile():
     return render_template('profile.html')
+
+
+@bp.route('/verify-email/<token>')
+def verify_email(token):
+    """Handle email verification link clicks."""
+    email = verify_token(token)
+    if not email:
+        flash('Invalid or expired verification link.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    user_data = store.get_user(email)
+    if not user_data:
+        flash('Account not found.', 'danger')
+        return redirect(url_for('auth.signup'))
+
+    if user_data.get('email_verified'):
+        flash('Your email is already verified.', 'info')
+        return redirect(url_for('auth.login'))
+
+    store.update_user(email, {'email_verified': True})
+    current_app.logger.info(f"Email verified for: {email}")
+    flash('Email verified successfully! You can now log in.', 'success')
+    return redirect(url_for('auth.login'))
+
+
+@bp.route('/resend-verification', methods=['POST'])
+@limiter.limit("3 per minute")
+def resend_verification():
+    """Resend the verification email."""
+    email = request.form.get('email', '').strip()
+    if not email:
+        flash('Please provide your email address.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    user_data = store.get_user(email)
+    if not user_data:
+        # Don't reveal whether the account exists
+        flash('If an account with that email exists, a verification email has been sent.', 'info')
+        return redirect(url_for('auth.login'))
+
+    if user_data.get('email_verified'):
+        flash('Your email is already verified.', 'info')
+        return redirect(url_for('auth.login'))
+
+    send_verification_email(email)
+    flash('If an account with that email exists, a verification email has been sent.', 'info')
+    return redirect(url_for('auth.login'))

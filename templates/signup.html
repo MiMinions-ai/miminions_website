@@ -34,25 +34,60 @@
               <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="row gy-3 overflow-hidden">
+                  <!-- Name row -->
+                  <div class="col-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name" required>
+                      <label for="first_name">First name</label>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-floating">
+                      <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name" required>
+                      <label for="last_name">Last name</label>
+                    </div>
+                  </div>
+                  <!-- Date of birth -->
                   <div class="col-12">
-                    <div class="form-floating mb-3">
+                    <div class="form-floating">
+                      <input type="date" class="form-control" name="date_of_birth" id="date_of_birth" placeholder="Date of birth" required>
+                      <label for="date_of_birth">Date of birth</label>
+                    </div>
+                  </div>
+                  <!-- Email -->
+                  <div class="col-12">
+                    <div class="form-floating">
                       <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
                       <label for="email" class="form-label">Email</label>
                     </div>
                   </div>
+                  <!-- Password -->
                   <div class="col-12">
-                    <div class="form-floating mb-3">
-                      <input type="password" class="form-control" name="password" id="password" placeholder="Password" minlength="8" required>
-                      <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                      <div class="form-floating flex-grow-1">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" minlength="8" required>
+                        <label for="password">Password</label>
+                      </div>
+                      <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                              onclick="togglePassword('password', this)" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                      </button>
                     </div>
-                    <div class="small text-muted mb-2">
+                    <div class="small text-muted mt-1 mb-1">
                       <i class="bi bi-info-circle me-1"></i>Password must be at least 8 characters long
                     </div>
                   </div>
+                  <!-- Confirm password -->
                   <div class="col-12">
-                    <div class="form-floating mb-3">
-                      <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" minlength="8" required>
-                      <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                      <div class="form-floating flex-grow-1">
+                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" minlength="8" required>
+                        <label for="confirm_password">Confirm Password</label>
+                      </div>
+                      <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                              onclick="togglePassword('confirm_password', this)" aria-label="Show confirm password">
+                        <i class="bi bi-eye"></i>
+                      </button>
                     </div>
                   </div>
                   <div class="col-12">
@@ -68,4 +103,18 @@
       </div>
     </div>
   </section>
+
+<script>
+  function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  }
+</script>
 {% endblock %}

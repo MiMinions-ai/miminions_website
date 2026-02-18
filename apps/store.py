@@ -28,7 +28,26 @@ def add_user(data):
             "id": data.id,
             "email": data.email,
             "password": data.password,
+            "first_name": data.first_name,
+            "last_name": data.last_name,
+            "date_of_birth": data.date_of_birth,
             "user_type": "user",
             "is_active": True,
+            "email_verified": False,
         }
     )
+
+
+def update_user(email, updates):
+    """Update fields on an existing user record.
+
+    Args:
+        email: The user's email address (partition key).
+        updates: A dict of field names to new values.
+    """
+    user = get_user(email)
+    if not user:
+        return None
+    user.update(updates)
+    users_table.put_item(Item=user)
+    return user

@@ -41,9 +41,15 @@
                     </div>
                   </div>
                   <div class="col-12">
-                    <div class="form-floating mb-3">
-                      <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
-                      <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                      <div class="form-floating flex-grow-1">
+                        <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
+                        <label for="password" class="form-label">Password</label>
+                      </div>
+                      <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                              onclick="togglePassword('password', this)" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                      </button>
                     </div>
                   </div>
                   <div class="col-12">
@@ -67,4 +73,18 @@
       </div>
     </div>
   </section>
+
+<script>
+  function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  }
+</script>
 {% endblock %}

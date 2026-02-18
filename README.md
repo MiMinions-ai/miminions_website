@@ -70,6 +70,10 @@ miminions_website/
 | `AWS_REGION` | Production | AWS region (default: `us-east-2`) |
 | `AWS_ACCESS_KEY_ID` | Local only | AWS credentials for local dev |
 | `AWS_SECRET_ACCESS_KEY` | Local only | AWS credentials for local dev |
+| `JWT_SECRET_KEY` | Yes | Secret key for JWT email verification tokens |
+| `RESEND_API_KEY` | Yes | API key for Resend email service |
+| `MAIL_FROM` | Yes | Sender email address for Resend |
+| `CONTACT_EMAIL` | Yes | Recipient email address for contact form |
 
 On AWS Elastic Beanstalk / EC2, IAM roles provide credentials automatically.
 
