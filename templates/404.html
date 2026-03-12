@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="text-center">
+            <div class="feature bg-primary bg-gradient-primary-to-secondary text-white rounded-3 mb-4 p-5">
+                <h1 class="display-1 fw-bold">404</h1>
+            </div>
+            <h2 class="fw-bolder mb-3">Page Not Found</h2>
+            <p class="lead fw-normal text-muted mb-4">The page you're looking for doesn't exist or has been moved.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a class="btn btn-primary btn-lg px-4" href="{{ url_for('main.home') }}">
+                    <i class="bi bi-house-fill me-2"></i>Go Home
+                </a>
+                <a class="btn btn-outline-primary btn-lg px-4" href="{{ url_for('main.contact') }}">
+                    <i class="bi bi-envelope-fill me-2"></i>Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

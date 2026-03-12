@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<section class="bg-light py-5">
+    <div class="container px-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-xxl-8">
+
+                <!-- Profile Info Form -->
+                <div class="card border-0 shadow rounded-4 mb-4">
+                    <div class="card-body p-5">
+                        <h2 class="fw-bold mb-1">Profile</h2>
+                        <p class="text-muted mb-4">Update your personal information</p>
+
+                        <form method="POST" action="{{ url_for('auth.profile') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="action" value="update_profile"/>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="first_name" class="form-label fw-semibold">First Name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name"
+                                           value="{{ current_user.first_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="last_name" class="form-label fw-semibold">Last Name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name"
+                                           value="{{ current_user.last_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label fw-semibold">Email</label>
+                                    <input type="email" class="form-control" id="email"
+                                           value="{{ current_user.email }}" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                           value="{{ current_user.phone }}" placeholder="Optional">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="date_of_birth" class="form-label fw-semibold">Date of Birth</label>
+                                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                                           value="{{ current_user.date_of_birth }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Account ID</label>
+                                    <input type="text" class="form-control text-muted" value="{{ current_user.user_id }}" disabled>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Change Password Form -->
+                <div class="card border-0 shadow rounded-4 mb-5">
+                    <div class="card-body p-5">
+                        <h4 class="fw-bold mb-1">Change Password</h4>
+                        <p class="text-muted mb-4">Leave blank if you don't want to change it</p>
+
+                        <form method="POST" action="{{ url_for('auth.profile') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="action" value="change_password"/>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="current_password" class="form-label fw-semibold">Current Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                        <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                                                data-password-toggle="current_password" aria-label="Show password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="new_password" class="form-label fw-semibold">New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="new_password" name="new_password" minlength="8" required>
+                                        <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                                                data-password-toggle="new_password" aria-label="Show password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="small text-muted mt-1"><i class="bi bi-info-circle me-1"></i>Minimum 8 characters</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="confirm_new_password" class="form-label fw-semibold">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" minlength="8" required>
+                                        <button class="btn btn-outline-secondary" type="button" tabindex="-1"
+                                                data-password-toggle="confirm_new_password" aria-label="Show password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-warning px-4">Change Password</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
+{% endblock %}
