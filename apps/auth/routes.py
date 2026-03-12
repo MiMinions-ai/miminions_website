@@ -12,7 +12,7 @@ from apps.utils import normalize_email, validate_email, validate_password
 from apps.email_service import send_verification_email, verify_token
 
 @bp.route('/signup', methods=['GET', 'POST'])
-@limiter.limit("3 per minute")
+@limiter.limit("10 per minute")
 def signup():
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
@@ -64,7 +64,14 @@ def signup():
             last_name=last_name,
             date_of_birth=date_of_birth,
         )
-        store.add_user(user_add_data)
+        
+        # Try to create the user
+        user_created = store.add_user(user_add_data)
+        if not user_created:
+            current_app.logger.error(f"Failed to create user in database: {email}")
+            flash('Registration failed due to a database error. Please try again.', 'danger')
+            return render_template('signup.html')
+            
         current_app.logger.info(f"New user registered: {email}")
 
         # Send verification email
@@ -78,7 +85,7 @@ def signup():
     return render_template('signup.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("20 per minute")
 def login():
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
@@ -238,7 +245,7 @@ def verify_email(token):
 
 
 @bp.route('/resend-verification', methods=['POST'])
-@limiter.limit("3 per minute")
+@limiter.limit("10 per minute")
 def resend_verification():
     """Resend the verification email."""
     email = normalize_email(request.form.get('email', ''))
