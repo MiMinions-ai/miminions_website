@@ -1,6 +1,7 @@
 from flask import render_template, request, flash, redirect, url_for, current_app, jsonify
 from flask_login import current_user
 from apps.main import bp
+from apps.database import retry_dynamodb_operation
 from apps.store import users_table
 from apps.email_service import send_contact_email
 from apps.utils import validate_email
@@ -14,7 +15,10 @@ def health():
     """Health check endpoint for Elastic Beanstalk."""
     try:
         # Test DynamoDB connection with a health check item
-        users_table.get_item(Key={"email": "__healthcheck__"})
+        def _health_check():
+            return users_table.get_item(Key={"email": "__healthcheck__"})
+        
+        retry_dynamodb_operation(_health_check)
         return jsonify({"status": "healthy", "database": "connected"}), 200
     except Exception as e:
         current_app.logger.error(f"Health check failed: {e}")

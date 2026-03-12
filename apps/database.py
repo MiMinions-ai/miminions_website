@@ -2,6 +2,8 @@ import logging
 import os
 import sys
 import json
+import time
+from botocore.exceptions import ClientError, BotoCoreError
 
 import boto3
 from dotenv import load_dotenv
@@ -55,6 +57,37 @@ class FakeDynamoDB:
 
     def Table(self, name):
         return MockTable(name)
+
+
+def retry_dynamodb_operation(func, max_retries=3, base_delay=0.1):
+    """Retry DynamoDB operations with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            
+            # Don't retry on user errors
+            if error_code in ['ValidationException', 'ResourceNotFoundException']:
+                raise
+            
+            # Retry on throttling and server errors
+            if error_code in ['ProvisionedThroughputExceededException', 'InternalServerError', 'ServiceUnavailable']:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"DynamoDB operation failed ({error_code}), retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(delay)
+                    continue
+            raise
+        except BotoCoreError as e:
+            if attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)
+                logger.warning(f"DynamoDB network error, retrying in {delay}s (attempt {attempt + 1}/{max_retries}): {e}")
+                time.sleep(delay)
+                continue
+            raise
+    
+    return None
 
 
 def _connect_dynamodb():
