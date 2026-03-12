@@ -115,11 +115,16 @@ def login():
             flash('Please verify your email before logging in. You can resend the verification email below.', 'warning')
             return render_template('login.html', email=email, show_resend_verification=True)
 
-        user = User(user_data)
-        login_user(user, remember=remember_me)
-        current_app.logger.info(f"User logged in successfully: {email}")
-        flash('Login successful!', 'success')
-        return redirect(url_for('main.home'))
+        try:
+            user = User(user_data)
+            login_user(user, remember=remember_me)
+            current_app.logger.info(f"User logged in successfully: {email}")
+            flash('Login successful!', 'success')
+            return redirect(url_for('main.home'))
+        except ValueError as e:
+            current_app.logger.error(f"Failed to create user object for {email}: {e}")
+            flash('Account data is corrupted. Please contact support.', 'danger')
+            return render_template('login.html', email=email)
 
     return render_template('login.html')
 

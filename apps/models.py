@@ -4,7 +4,13 @@ import apps.store as store
 
 class User(UserMixin):
     def __init__(self, user_data):
-        self.id = user_data["email"]  # Flask-Login requires an "id" attribute
+        if not user_data:
+            raise ValueError("User data cannot be None")
+            
+        self.id = user_data.get("email")  # Flask-Login requires an "id" attribute
+        if not self.id:
+            raise ValueError("User must have an email")
+            
         self.user_id = user_data.get("id")
         self.email = user_data.get("email")
         self.password = user_data.get("password")
@@ -23,7 +29,21 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = store.get_user(user_id)
-    if user_data:
-        return User(user_data)
+    """Load user by ID for Flask-Login sessions.
+    
+    Args:
+        user_id: The user's email (used as ID)
+        
+    Returns:
+        User object if found and valid, None otherwise
+    """
+    try:
+        user_data = store.get_user(user_id)
+        if user_data:
+            return User(user_data)
+    except Exception as e:
+        # Log the error but don't crash the app
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error loading user {user_id}: {e}")
     return None
