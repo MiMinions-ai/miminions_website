@@ -8,16 +8,22 @@ from apps.auth import bp
 from apps.extensions import limiter
 import apps.store as store
 from apps.models import User
-from apps.utils import normalize_email, validate_email, validate_password, validate_name, sanitize_input
+from apps.utils import (
+    normalize_email,
+    validate_date_of_birth,
+    validate_email,
+    validate_name,
+    validate_password,
+    validate_phone,
+)
 from apps.email_service import send_verification_email, verify_token
 
 @bp.route('/signup', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
+@limiter.limit("60 per minute", methods=["POST"])
 def signup():
     if request.method == 'POST':
-        # Sanitize inputs immediately
         raw_email = request.form.get('email', '')
-        email = normalize_email(sanitize_input(raw_email))
+        email = normalize_email(raw_email)
         password = request.form.get('password', '')  # Do not sanitize password, it gets hashed
 
         current_app.logger.info(f"Signup attempt for email: {email}")
@@ -27,16 +33,16 @@ def signup():
             flash('Please enter a valid email address.', 'danger')
             return render_template('signup.html'), 400
 
-        # Validate strict name format (alphabetic only)
-        first_name = sanitize_input(request.form.get('first_name', ''))
-        last_name = sanitize_input(request.form.get('last_name', ''))
+        # Strict fail-fast validation: never auto-correct invalid names.
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
 
         if not first_name or not last_name:
             flash('Please enter your first and last name.', 'danger')
             return render_template('signup.html'), 400
 
         if not validate_name(first_name) or not validate_name(last_name):
-            flash('Names must contain only alphabetic characters and spaces.', 'danger')
+            flash("Names may only contain letters, spaces, hyphens, and apostrophes.", 'danger')
             return render_template('signup.html'), 400
 
         # Validate password length
@@ -50,11 +56,14 @@ def signup():
             flash('Passwords do not match.', 'danger')
             return render_template('signup.html'), 400
 
-        # Collect profile fields
-        date_of_birth = sanitize_input(request.form.get('date_of_birth', ''))
+        date_of_birth = request.form.get('date_of_birth', '').strip()
 
         if not date_of_birth:
             flash('Please enter your date of birth.', 'danger')
+            return render_template('signup.html'), 400
+
+        if not validate_date_of_birth(date_of_birth):
+            flash('Enter a valid birth date in YYYY-MM-DD format (age must be between 13 and 120).', 'danger')
             return render_template('signup.html'), 400
 
         user_data = store.get_user(email)
@@ -93,7 +102,7 @@ def signup():
     return render_template('signup.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
-@limiter.limit("20 per minute")
+@limiter.limit("120 per minute", methods=["POST"])
 def login():
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
@@ -166,7 +175,19 @@ def profile():
 
             if not first_name or not last_name:
                 flash('First and last name are required.', 'danger')
-                return redirect(url_for('auth.profile'))
+                return render_template('profile.html'), 400
+
+            if not validate_name(first_name) or not validate_name(last_name):
+                flash("Names may only contain letters, spaces, hyphens, and apostrophes.", 'danger')
+                return render_template('profile.html'), 400
+
+            if not validate_date_of_birth(date_of_birth):
+                flash('Enter a valid birth date in YYYY-MM-DD format (age must be between 13 and 120).', 'danger')
+                return render_template('profile.html'), 400
+
+            if not validate_phone(phone):
+                flash('Please enter a valid phone number.', 'danger')
+                return render_template('profile.html'), 400
 
             updated_user = store.update_user(current_user.email, {
                 'first_name': first_name,
@@ -253,7 +274,7 @@ def verify_email(token):
 
 
 @bp.route('/resend-verification', methods=['POST'])
-@limiter.limit("10 per minute")
+@limiter.limit("30 per minute", methods=["POST"])
 def resend_verification():
     """Resend the verification email."""
     email = normalize_email(request.form.get('email', ''))

@@ -1,4 +1,9 @@
 import re
+from datetime import date, datetime
+
+
+NAME_PATTERN = re.compile(r"^[a-zA-Z\s\-']+$")
+PHONE_PATTERN = re.compile(r"^\+?[0-9\s().-]{7,20}$")
 
 
 def normalize_email(email):
@@ -22,27 +27,54 @@ def validate_email(email):
 
 def validate_name(name):
     """
-    Validates that the name contains only alphabetic characters and spaces.
+    Validates that the name uses a strict whitelist.
+    Allowed characters: letters, spaces, hyphens, apostrophes.
     Returns True if valid, False otherwise.
     """
     if not name:
         return False
-    # Only allow letters and spaces
-    pattern = r'^[a-zA-Z\s]+$'
-    return bool(re.fullmatch(pattern, name))
+    return bool(NAME_PATTERN.fullmatch(name.strip()))
+
+
+def validate_phone(phone):
+    """
+    Validates phone number format.
+    Empty values are allowed, otherwise only digits and common separators.
+    """
+    if not phone:
+        return True
+    return bool(PHONE_PATTERN.fullmatch(phone.strip()))
+
+
+def validate_date_of_birth(date_of_birth, min_age=13, max_age=120):
+    """
+    Validates date of birth in ISO format (YYYY-MM-DD) and age bounds.
+    """
+    if not date_of_birth:
+        return False
+
+    try:
+        dob = datetime.strptime(date_of_birth.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return False
+
+    today = date.today()
+    if dob > today:
+        return False
+
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return min_age <= age <= max_age
 
 
 def sanitize_input(input_string):
     """
-    Sanitizes string input by removing potential script tags and dangerous characters.
-    Although strict validation handles most cases, this is an extra safety layer.
+    Sanitizes generic free-text input by removing HTML/script-like tags.
+    Do not use this for strict fields that should fail validation (e.g. names).
     """
     if not input_string:
         return ""
     # Remove HTML tags
     clean = re.sub(r'<[^>]*>', '', input_string)
-    # Remove potential SQL injection characters for good measure
-    clean = clean.replace("'", "").replace('"', "").replace(';', "").replace('--', "")
     return clean.strip()
 
 
