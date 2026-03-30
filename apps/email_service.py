@@ -1,4 +1,5 @@
 import logging
+import html
 import jwt
 from datetime import datetime, timezone, timedelta
 from flask import current_app, url_for
@@ -118,6 +119,11 @@ def send_contact_email(name, email, phone, message):
         logger.info(f"[DEV] Skipping contact email from {email}")
         return True
 
+    safe_name = html.escape(name)
+    safe_email = html.escape(email)
+    safe_phone = html.escape(phone) if phone else "N/A"
+    safe_message = html.escape(message).replace("\n", "<br>")
+
     try:
         resend.Emails.send({
             "from": current_app.config["MAIL_FROM"],
@@ -126,11 +132,11 @@ def send_contact_email(name, email, phone, message):
             "subject": f"Contact Form — {name}",
             "html": (
                 f"<h2>New Contact Form Submission</h2>"
-                f"<p><strong>Name:</strong> {name}</p>"
-                f"<p><strong>Email:</strong> {email}</p>"
-                f"<p><strong>Phone:</strong> {phone or 'N/A'}</p>"
+                f"<p><strong>Name:</strong> {safe_name}</p>"
+                f"<p><strong>Email:</strong> {safe_email}</p>"
+                f"<p><strong>Phone:</strong> {safe_phone}</p>"
                 f"<hr>"
-                f"<p>{message}</p>"
+                f"<p>{safe_message}</p>"
             ),
         })
         logger.info(f"Contact email forwarded from {email}")

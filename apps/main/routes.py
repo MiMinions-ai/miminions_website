@@ -4,7 +4,7 @@ from apps.main import bp
 from apps.database import retry_dynamodb_operation
 from apps.store import users_table
 from apps.email_service import send_contact_email
-from apps.utils import validate_email
+from apps.utils import validate_email, validate_name, validate_phone, validate_max_length
 
 @bp.route('/')
 def home():
@@ -48,8 +48,28 @@ def contact():
             flash('Please fill in all required fields.', 'danger')
             return render_template('contact.html')
 
+        if not validate_name(name):
+            flash("Name may only contain letters, spaces, hyphens, and apostrophes.", 'danger')
+            return render_template('contact.html')
+
         if not validate_email(email):
             flash('Please enter a valid email address.', 'danger')
+            return render_template('contact.html')
+
+        if phone and not validate_phone(phone):
+            flash('Please enter a valid phone number.', 'danger')
+            return render_template('contact.html')
+
+        if not validate_max_length(name, 100):
+            flash('Name is too long.', 'danger')
+            return render_template('contact.html')
+
+        if not validate_max_length(phone, 30):
+            flash('Phone number is too long.', 'danger')
+            return render_template('contact.html')
+
+        if not validate_max_length(message, 3000):
+            flash('Message is too long (maximum 3000 characters).', 'danger')
             return render_template('contact.html')
 
         success = send_contact_email(name, email, phone, message)

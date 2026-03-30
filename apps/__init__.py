@@ -1,4 +1,6 @@
 import logging
+import os
+from datetime import datetime
 from flask import Flask, request, render_template
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -13,9 +15,9 @@ def create_app(config_class=None):
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.from_object(config_class)
 
-    # Trust X-Forwarded-Proto/Host from the EB load balancer so that
-    # url_for(..., _external=True) generates https:// URLs in production.
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    # Only trust forwarded headers in production behind a verified proxy.
+    if os.getenv("FLASK_ENV", "local").lower() == "production":
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     configure_logging(app)
     
@@ -30,6 +32,10 @@ def create_app(config_class=None):
     app.register_blueprint(main_bp)
 
     register_handlers(app)
+
+    @app.context_processor
+    def inject_template_globals():
+        return {"current_year": datetime.utcnow().year}
 
     return app
 
@@ -52,10 +58,12 @@ def register_handlers(app):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
             "img-src 'self' data:; "
-            "connect-src 'self'"
+            "connect-src 'self'; "
+            "object-src 'none'; "
+            "base-uri 'self'"
         )
         try:
             if current_user.is_authenticated:

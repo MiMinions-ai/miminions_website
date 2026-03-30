@@ -152,7 +152,7 @@ def login():
 
     return render_template('login.html')
 
-@bp.route("/logout")
+@bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
     email = current_user.email if current_user.is_authenticated else "unknown"

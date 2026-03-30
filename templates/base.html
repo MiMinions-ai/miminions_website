@@ -51,7 +51,12 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                               <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="bi bi-person-circle"></i> Profile</a></li>
                               <li><hr class="dropdown-divider"></li>
-                              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                                                            <li>
+                                                                <form method="POST" action="{{ url_for('auth.logout') }}" class="m-0">
+                                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                                                </form>
+                                                            </li>
                             </ul>
                             {% else %}
                             <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Login</a>
@@ -82,7 +87,7 @@
         <footer class="text-white py-4 mt-auto footer-04">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><p class="copyright small m-0">Copyright &copy;<script>document.write(new Date().getFullYear());</script> <a href="{{ url_for('main.home') }}">miminions.ai</a>. All rights reserved.</p></div>
+                    <div class="col-auto"><p class="copyright small m-0">Copyright &copy;{{ current_year }} <a href="{{ url_for('main.home') }}">miminions.ai</a>. All rights reserved.</p></div>
                     <div class="col-auto">
                         <a class="small" href="https://github.com/miminions-ai" target="_blank"><i class="bi bi-github"></i> GitHub</a>
                         <span class="mx-1">&middot;</span>

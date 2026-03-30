@@ -86,3 +86,10 @@ def validate_password(password):
     if not password:
         return False
     return len(password) >= 8
+
+
+def validate_max_length(value, max_length):
+    """Validate that a string does not exceed max_length characters."""
+    if value is None:
+        return True
+    return len(value) <= max_length
