@@ -1,6 +1,8 @@
 .env
 .DS_Store
 .venv
+users_local_db.json
+*_local_db.json
 
 __pycache__
 

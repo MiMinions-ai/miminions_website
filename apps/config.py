@@ -1,8 +1,23 @@
 import os
 import sys
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
+
+
+def _is_set(name):
+    value = os.getenv(name)
+    return bool(value and value.strip())
+
+
+def _require_env(names, context):
+    missing = [name for name in names if not _is_set(name)]
+    if missing:
+        raise RuntimeError(
+            f"Missing required environment variables for {context}: {', '.join(missing)}"
+        )
 
 class Config:
     """Base configuration."""
@@ -41,18 +56,24 @@ def get_config():
     """
     Determine configuration based on environment and arguments.
     """
-    # Check FLASK_ENV environment variable
     flask_env = os.getenv("FLASK_ENV", "local").lower()
-    
-    # Also check for command-line flags
-    load_local = any(arg in sys.argv for arg in ["--local", "--test", "--deploy"])
-    
-    if flask_env == "production" and not load_local:
-        # Validate all required production secrets
-        missing = [k for k in ("SECRET_KEY", "JWT_SECRET_KEY", "RESEND_API_KEY") if not os.getenv(k)]
-        if missing:
-            raise RuntimeError(f"Missing required environment variables for production: {', '.join(missing)}")
+    force_local = "--local" in sys.argv
+    force_test = "--test" in sys.argv
+
+    if force_test:
+        logger.warning("Running in testing mode (--test)")
+        return TestingConfig
+
+    if flask_env == "production" and not force_local:
+        _require_env(
+            ["SECRET_KEY", "JWT_SECRET_KEY", "RESEND_API_KEY", "MAIL_FROM", "CONTACT_EMAIL"],
+            "production",
+        )
         return ProductionConfig
-    
-    print(f"WARNING: Running in Local/Development Mode (FLASK_ENV={flask_env}) - Security headers relaxed")
-    return TestingConfig
+
+    _require_env(["SECRET_KEY"], "development/local")
+    if not _is_set("JWT_SECRET_KEY"):
+        logger.warning("JWT_SECRET_KEY not set in development/local; falling back to SECRET_KEY")
+
+    logger.info("Running in development mode (FLASK_ENV=%s)", flask_env)
+    return DevelopmentConfig
