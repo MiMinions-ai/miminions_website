@@ -8,6 +8,10 @@ logger = logging.getLogger(__name__)
 users_table = db.Table("users")
 
 
+def _is_conditional_check_failed(error):
+    return error.response.get('Error', {}).get('Code') == 'ConditionalCheckFailedException'
+
+
 def get_user(email):
     """Retrieve a user record by email.
 
@@ -68,27 +72,24 @@ def add_user(data):
         logger.warning("Missing user ID for new user")
         return False
     
-    # Check if user already exists
-    existing_user = get_user(normalized_email) 
-    if existing_user:
-        logger.warning(f"User already exists: {normalized_email}")
-        return False
-    
     try:
+        item = {
+            "id": data.id,
+            "email": normalized_email,
+            "password": data.password,
+            "first_name": getattr(data, "first_name", ""),
+            "last_name": getattr(data, "last_name", ""),
+            "date_of_birth": getattr(data, "date_of_birth", ""),
+            "phone": getattr(data, "phone", ""),
+            "user_type": "user",
+            "is_active": True,
+            "email_verified": False,
+        }
+
         def _put_operation():
             return users_table.put_item(
-                Item={
-                    "id": data.id,
-                    "email": normalized_email,
-                    "password": data.password,
-                    "first_name": getattr(data, "first_name", ""),
-                    "last_name": getattr(data, "last_name", ""),
-                    "date_of_birth": getattr(data, "date_of_birth", ""),
-                    "phone": getattr(data, "phone", ""),
-                    "user_type": "user",
-                    "is_active": True,
-                    "email_verified": False,
-                }
+                Item=item,
+                ConditionExpression="attribute_not_exists(email)",
             )
         
         response = retry_dynamodb_operation(_put_operation)
@@ -101,6 +102,9 @@ def add_user(data):
             return False
             
     except ClientError as e:
+        if _is_conditional_check_failed(e):
+            logger.warning(f"User already exists (conditional write): {normalized_email}")
+            return False
         logger.error(f"DynamoDB error creating user {normalized_email}: {e}")
         return False
     except Exception as e:
@@ -128,38 +132,53 @@ def update_user(email, updates):
         return None
 
     try:
-        # Get current user first
-        user = get_user(normalized_email)
-        if not user:
-            logger.warning(f"User not found for update: {normalized_email}")
-            return None
-
-        # Prepare safe updates
         safe_updates = dict(updates)
+        # Primary key changes should be handled with a dedicated migration flow.
         if "email" in safe_updates:
-            new_email = normalize_email(safe_updates["email"])
-            if not validate_email(new_email):
-                logger.warning(f"Invalid new email format: {safe_updates['email']}")
-                return None
-            safe_updates["email"] = new_email
-
-        # Apply updates
-        user.update(safe_updates)
-        user["email"] = normalize_email(user.get("email", normalized_email))
-        
-        def _put_operation():
-            return users_table.put_item(Item=user)
-        
-        response = retry_dynamodb_operation(_put_operation)
-        
-        if response and response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
-            logger.info(f"User updated successfully: {normalized_email}")
-            return user
-        else:
-            logger.error(f"Failed to update user: {normalized_email}")
+            logger.warning("Email updates are not supported via update_user")
             return None
+
+        update_keys = [k for k in safe_updates.keys() if k]
+        if not update_keys:
+            logger.warning("No valid update keys provided")
+            return None
+
+        expr_names = {}
+        expr_values = {}
+        set_clauses = []
+        for key in update_keys:
+            name_ref = f"#{key}"
+            value_ref = f":{key}"
+            expr_names[name_ref] = key
+            expr_values[value_ref] = safe_updates[key]
+            set_clauses.append(f"{name_ref} = {value_ref}")
+
+        update_expression = "SET " + ", ".join(set_clauses)
+
+        def _update_operation():
+            return users_table.update_item(
+                Key={"email": normalized_email},
+                UpdateExpression=update_expression,
+                ExpressionAttributeNames=expr_names,
+                ExpressionAttributeValues=expr_values,
+                ConditionExpression="attribute_exists(email)",
+                ReturnValues="ALL_NEW",
+            )
+
+        response = retry_dynamodb_operation(_update_operation)
+
+        updated_item = response.get("Attributes") if response else None
+        if updated_item:
+            logger.info(f"User updated successfully: {normalized_email}")
+            return updated_item
+
+        # Fallback for clients/tables that do not return attributes as expected.
+        return get_user(normalized_email)
             
     except ClientError as e:
+        if _is_conditional_check_failed(e):
+            logger.warning(f"User not found for update (conditional write): {normalized_email}")
+            return None
         logger.error(f"DynamoDB error updating user {normalized_email}: {e}")
         return None
     except Exception as e:

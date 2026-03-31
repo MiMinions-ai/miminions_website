@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, request, flash, current_ap
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from types import SimpleNamespace
+import hashlib
 import uuid
 
 from apps.auth import bp
@@ -12,11 +13,31 @@ from apps.utils import (
     normalize_email,
     validate_date_of_birth,
     validate_email,
+    get_password_validation_errors,
     validate_name,
     validate_password,
     validate_phone,
 )
 from apps.email_service import send_verification_email, verify_token
+
+
+def _email_fingerprint(email):
+    normalized = normalize_email(email)
+    if not normalized:
+        return "unknown"
+    digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    return digest[:12]
+
+
+def _login_account_key():
+    normalized = normalize_email(request.form.get('email', ''))
+    if not normalized:
+        return f"account:unknown:{request.remote_addr or '127.0.0.1'}"
+    return f"account:{normalized}"
+
+
+def _deduct_on_failed_auth(response):
+    return response.status_code >= 400
 
 @bp.route('/signup', methods=['GET', 'POST'])
 @limiter.limit("60 per minute", methods=["POST"])
@@ -26,7 +47,8 @@ def signup():
         email = normalize_email(raw_email)
         password = request.form.get('password', '')  # Do not sanitize password, it gets hashed
 
-        current_app.logger.info(f"Signup attempt for email: {email}")
+        email_fp = _email_fingerprint(email)
+        current_app.logger.info("Signup attempt for account=%s", email_fp)
 
         # Validate email format
         if not validate_email(email):
@@ -47,7 +69,8 @@ def signup():
 
         # Validate password length
         if not validate_password(password):
-            flash('Password must be at least 8 characters long.', 'danger')
+            for err in get_password_validation_errors(password):
+                flash(err, 'danger')
             return render_template('signup.html'), 400
 
         # Validate passwords match
@@ -69,7 +92,7 @@ def signup():
         user_data = store.get_user(email)
 
         if user_data:
-            current_app.logger.warning(f"Signup failed - email already exists: {email}")
+            current_app.logger.warning("Signup failed - account already exists: %s", email_fp)
             flash('An account with this email already exists.', 'danger')
             return render_template('signup.html')
 
@@ -85,11 +108,11 @@ def signup():
         # Try to create the user
         user_created = store.add_user(user_add_data)
         if not user_created:
-            current_app.logger.error(f"Failed to create user in database: {email}")
+            current_app.logger.error("Signup failed - database create error for account=%s", email_fp)
             flash('Registration failed due to a database error. Please try again.', 'danger')
             return render_template('signup.html')
             
-        current_app.logger.info(f"New user registered: {email}")
+        current_app.logger.info("New user registered: %s", email_fp)
 
         # Send verification email
         email_sent = send_verification_email(email)
@@ -102,53 +125,57 @@ def signup():
     return render_template('signup.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
-@limiter.limit("120 per minute", methods=["POST"])
+@limiter.limit("30 per minute", methods=["POST"], deduct_when=_deduct_on_failed_auth)
+@limiter.limit("12 per 15 minute", methods=["POST"], deduct_when=_deduct_on_failed_auth)
+@limiter.limit("8 per 15 minute", methods=["POST"], key_func=_login_account_key, deduct_when=_deduct_on_failed_auth)
 def login():
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
         password = request.form.get('password', '')
         remember_me = 'remember_me' in request.form
+        email_fp = _email_fingerprint(email)
 
-        current_app.logger.info(f"Login attempt for email: {email}")
+        current_app.logger.info("Login attempt for account=%s", email_fp)
 
         if not validate_email(email):
             flash('Please enter a valid email address.', 'danger')
-            return render_template('login.html', email=email)
+            return render_template('login.html', email=email), 400
 
         user_data = store.get_user(email)
 
         if not user_data:
-            current_app.logger.warning(f"Login failed - user not found: {email}")
+            current_app.logger.warning("Login failed - account not found: %s", email_fp)
             flash('No account found with that email.', 'danger')
-            return render_template('login.html', email=email)
+            return render_template('login.html', email=email), 401
 
         stored_password_hash = user_data.get("password")
         if not stored_password_hash or not check_password_hash(stored_password_hash, password):
-            current_app.logger.warning(f"Login failed - incorrect password: {email}")
+            current_app.logger.warning("Login failed - incorrect password for account=%s", email_fp)
             flash('Incorrect password.', 'danger')
-            return render_template('login.html', email=email)
+            return render_template('login.html', email=email), 401
 
         if not user_data.get('is_active', True):
-            current_app.logger.warning(f"Login failed - inactive account: {email}")
+            current_app.logger.warning("Login blocked - inactive account=%s", email_fp)
             flash('Your account is inactive. Please contact support.', 'danger')
-            return render_template('login.html', email=email)
+            return render_template('login.html', email=email), 403
 
         # Legacy accounts that predate verification may not have this key.
         if not user_data.get('email_verified', True):
-            current_app.logger.info(f"Login blocked - unverified email: {email}")
+            current_app.logger.info("Login blocked - unverified account=%s", email_fp)
             flash('Please verify your email before logging in. You can resend the verification email below.', 'warning')
-            return render_template('login.html', email=email, show_resend_verification=True)
+            return render_template('login.html', email=email, show_resend_verification=True), 403
 
         try:
             user = User(user_data)
             login_user(user, remember=remember_me)
-            current_app.logger.info(f"User logged in successfully: {email}")
+            current_app.logger.info("User logged in successfully: %s", email_fp)
+            current_app.logger.debug("Login success detail email=%s", email)
             flash('Login successful!', 'success')
             return redirect(url_for('main.home'))
         except ValueError as e:
-            current_app.logger.error(f"Failed to create user object for {email}: {e}")
+            current_app.logger.error("Failed to create user object for account=%s: %s", email_fp, e)
             flash('Account data is corrupted. Please contact support.', 'danger')
-            return render_template('login.html', email=email)
+            return render_template('login.html', email=email), 500
 
     return render_template('login.html')
 
@@ -156,8 +183,9 @@ def login():
 @login_required
 def logout():
     email = current_user.email if current_user.is_authenticated else "unknown"
+    email_fp = _email_fingerprint(email)
     logout_user()
-    current_app.logger.info(f"User logged out: {email}")
+    current_app.logger.info("User logged out: %s", email_fp)
     flash('Logged out successfully', 'info')
     return redirect(url_for('main.home'))
 
@@ -219,7 +247,8 @@ def profile():
                 return redirect(url_for('auth.profile'))
 
             if not validate_password(new_password):
-                flash('New password must be at least 8 characters long.', 'danger')
+                for err in get_password_validation_errors(new_password):
+                    flash(err, 'danger')
                 return redirect(url_for('auth.profile'))
 
             if new_password != confirm_new_password:

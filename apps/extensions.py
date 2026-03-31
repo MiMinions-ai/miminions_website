@@ -16,6 +16,14 @@ def _client_ip_for_rate_limit():
         return request.access_route[0]
     return request.remote_addr or "127.0.0.1"
 
+
+def _limiter_storage_uri():
+    env = os.getenv("FLASK_ENV", "local").lower()
+    redis_url = os.getenv("REDIS_URL", "").strip()
+    if env == "production" and redis_url:
+        return redis_url
+    return "memory://"
+
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'  # Updated to use blueprint endpoint
 
@@ -23,6 +31,6 @@ csrf = CSRFProtect()
 
 limiter = Limiter(
     key_func=_client_ip_for_rate_limit,
-    storage_uri="memory://",
+    storage_uri=_limiter_storage_uri(),
     default_limits=[]
 )

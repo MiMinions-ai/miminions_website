@@ -4,6 +4,7 @@ from apps.main import bp
 from apps.database import retry_dynamodb_operation
 from apps.store import users_table
 from apps.email_service import send_contact_email
+from apps.extensions import limiter
 from apps.utils import validate_email, validate_name, validate_phone, validate_max_length
 
 @bp.route('/')
@@ -22,7 +23,7 @@ def health():
         return jsonify({"status": "healthy", "database": "connected"}), 200
     except Exception as e:
         current_app.logger.error(f"Health check failed: {e}")
-        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+        return jsonify({"status": "unhealthy", "error": "database unavailable"}), 503
 
 @bp.route('/about')
 def about():
@@ -37,6 +38,7 @@ def documentation():
     return render_template('documentation.html')
 
 @bp.route('/contact', methods=['GET', 'POST'])
+@limiter.limit("10 per hour", methods=["POST"])
 def contact():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
