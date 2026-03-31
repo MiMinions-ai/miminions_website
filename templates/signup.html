@@ -37,27 +37,27 @@
                   <!-- Name row -->
                   <div class="col-6">
                     <div class="form-floating">
-                      <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name" required>
+                      <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name" maxlength="100" value="{{ form_data.first_name if form_data else '' }}" required>
                       <label for="first_name">First name</label>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-floating">
-                      <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name" required>
+                      <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name" maxlength="100" value="{{ form_data.last_name if form_data else '' }}" required>
                       <label for="last_name">Last name</label>
                     </div>
                   </div>
                   <!-- Date of birth -->
                   <div class="col-12">
                     <div class="form-floating">
-                      <input type="date" class="form-control" name="date_of_birth" id="date_of_birth" placeholder="Date of birth" required>
+                      <input type="date" class="form-control" name="date_of_birth" id="date_of_birth" placeholder="Date of birth" value="{{ form_data.date_of_birth if form_data else '' }}" required>
                       <label for="date_of_birth">Date of birth</label>
                     </div>
                   </div>
                   <!-- Email -->
                   <div class="col-12">
                     <div class="form-floating">
-                      <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                      <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" maxlength="254" value="{{ form_data.email if form_data else '' }}" required>
                       <label for="email" class="form-label">Email</label>
                     </div>
                   </div>
@@ -65,7 +65,7 @@
                   <div class="col-12">
                     <div class="input-group">
                       <div class="form-floating flex-grow-1">
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" minlength="12" required>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" minlength="12" aria-describedby="passwordHelp" required>
                         <label for="password">Password</label>
                       </div>
                       <button class="btn btn-outline-secondary" type="button" tabindex="-1"
@@ -73,7 +73,7 @@
                         <i class="bi bi-eye"></i>
                       </button>
                     </div>
-                    <div class="small text-muted mt-1 mb-1">
+                    <div class="small text-muted mt-1 mb-1" id="passwordHelp">
                       <i class="bi bi-info-circle me-1"></i>Use at least 12 characters with upper/lowercase letters, a number, and a symbol
                     </div>
                   </div>

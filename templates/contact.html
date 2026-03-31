@@ -17,24 +17,26 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <!-- Name input-->
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="name" name="name" type="text" placeholder="Enter your name..." required />
+                            <input class="form-control" id="name" name="name" type="text" placeholder="Enter your name..." maxlength="100" value="{{ form_data.name if form_data else '' }}" required />
                             <label for="name">Full name</label>
                         </div>
                         <!-- Email address input-->
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="email" name="email" type="email" placeholder="name@example.com" required />
+                            <input class="form-control" id="email" name="email" type="email" placeholder="name@example.com" maxlength="254" value="{{ form_data.email if form_data else '' }}" required />
                             <label for="email">Email address</label>
                         </div>
                         <!-- Phone number input-->
                         <div class="form-floating mb-3">
-                            <input class="form-control" id="phone" name="phone" type="tel" placeholder="(123) 456-7890" />
+                            <input class="form-control" id="phone" name="phone" type="tel" placeholder="(123) 456-7890" maxlength="20" value="{{ form_data.phone if form_data else '' }}" aria-describedby="phoneHelp" />
                             <label for="phone">Phone number</label>
                         </div>
+                        <div class="form-text mb-3" id="phoneHelp">Optional. Use digits and common separators only.</div>
                         <!-- Message input-->
                         <div class="form-floating mb-3">
-                            <textarea class="form-control" id="message" name="message" placeholder="Enter your message here..." style="height: 10rem" required></textarea>
+                            <textarea class="form-control" id="message" name="message" placeholder="Enter your message here..." style="height: 10rem" maxlength="3000" aria-describedby="messageHelp" required>{{ form_data.message if form_data else '' }}</textarea>
                             <label for="message">Message</label>
                         </div>
+                        <div class="form-text mb-3" id="messageHelp">Maximum 3000 characters.</div>
                         <!-- Submit Button-->
                         <div class="d-grid"><button class="btn btn-primary btn-lg px-5 py-3 fs-6 fw-bolder" type="submit">Submit</button></div>
                     </form>

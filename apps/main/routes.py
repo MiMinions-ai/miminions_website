@@ -40,39 +40,46 @@ def documentation():
 @bp.route('/contact', methods=['GET', 'POST'])
 @limiter.limit("10 per hour", methods=["POST"])
 def contact():
+    form_data = {
+        'name': request.form.get('name', '').strip(),
+        'email': request.form.get('email', '').strip(),
+        'phone': request.form.get('phone', '').strip(),
+        'message': request.form.get('message', '').strip(),
+    }
+
     if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        email = request.form.get('email', '').strip()
-        phone = request.form.get('phone', '').strip()
-        message = request.form.get('message', '').strip()
+        name = form_data['name']
+        email = form_data['email']
+        phone = form_data['phone']
+        message = form_data['message']
 
         if not name or not email or not message:
             flash('Please fill in all required fields.', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         if not validate_name(name):
             flash("Name may only contain letters, spaces, hyphens, and apostrophes.", 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         if not validate_email(email):
             flash('Please enter a valid email address.', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         if phone and not validate_phone(phone):
             flash('Please enter a valid phone number.', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         if not validate_max_length(name, 100):
             flash('Name is too long.', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
-        if not validate_max_length(phone, 30):
+        if not validate_max_length(phone, 20):
             flash('Phone number is too long.', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         if not validate_max_length(message, 3000):
             flash('Message is too long (maximum 3000 characters).', 'danger')
-            return render_template('contact.html')
+            return render_template('contact.html', form_data=form_data), 400
 
         success = send_contact_email(name, email, phone, message)
         if success:
@@ -82,7 +89,7 @@ def contact():
             current_app.logger.error(f"Failed to send contact form email from {email}")
             flash('Something went wrong sending your message. Please try again later.', 'danger')
         return redirect(url_for('main.contact'))
-    return render_template('contact.html')
+    return render_template('contact.html', form_data=form_data)
 
 @bp.route('/faqs')
 def faq():
