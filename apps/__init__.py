@@ -2,12 +2,13 @@ import logging
 import os
 import uuid
 from datetime import datetime, timezone
-from flask import Flask, request, render_template, g, has_request_context
+
+from flask import Flask, g, has_request_context, render_template, request
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from apps.config import get_config
-from apps.extensions import login_manager, csrf, limiter
+from apps.extensions import csrf, limiter, login_manager
 
 
 class RequestIdFilter(logging.Filter):
@@ -15,11 +16,12 @@ class RequestIdFilter(logging.Filter):
         record.request_id = getattr(g, "request_id", "-") if has_request_context() else "-"
         return True
 
+
 def create_app(config_class=None):
     if config_class is None:
         config_class = get_config()
 
-    app = Flask(__name__, template_folder='../templates', static_folder='../static')
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(config_class)
 
     # Only trust forwarded headers in production behind a verified proxy.
@@ -27,15 +29,17 @@ def create_app(config_class=None):
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     configure_logging(app)
-    
+
     login_manager.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
 
     from apps.auth import bp as auth_bp
+
     app.register_blueprint(auth_bp)
-    
+
     from apps.main import bp as main_bp
+
     app.register_blueprint(main_bp)
 
     register_handlers(app)
@@ -46,14 +50,15 @@ def create_app(config_class=None):
 
     return app
 
+
 def configure_logging(app):
     request_id_filter = RequestIdFilter()
 
     if not app.logger.handlers:
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s [%(levelname)s] [req:%(request_id)s] %(name)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            format="%(asctime)s [%(levelname)s] [req:%(request_id)s] %(name)s: %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
 
     for handler in logging.getLogger().handlers:
@@ -63,6 +68,7 @@ def configure_logging(app):
         handler.addFilter(request_id_filter)
 
     app.logger.setLevel(logging.INFO)
+
 
 def register_handlers(app):
     @app.before_request
@@ -80,8 +86,10 @@ def register_handlers(app):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
+            "https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net "
+            "https://cdnjs.cloudflare.com; "
             "img-src 'self' data:; "
             "connect-src 'self'; "
             "object-src 'none'; "
@@ -90,16 +98,16 @@ def register_handlers(app):
         try:
             if current_user.is_authenticated:
                 response.headers["Cache-Control"] = "no-store"
-        except:
-             pass
+        except Exception:
+            pass
         return response
 
     @app.errorhandler(404)
     def not_found_error(error):
         app.logger.warning(f"404 error: {request.path}")
-        return render_template('404.html'), 404
+        return render_template("404.html"), 404
 
     @app.errorhandler(500)
     def internal_error(error):
         app.logger.error(f"500 error: {error}")
-        return render_template('500.html'), 500
+        return render_template("500.html"), 500

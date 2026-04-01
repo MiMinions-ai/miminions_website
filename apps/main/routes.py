@@ -1,96 +1,103 @@
-from flask import render_template, request, flash, redirect, url_for, current_app, jsonify
-from flask_login import current_user
-from apps.main import bp
+from flask import current_app, flash, jsonify, redirect, render_template, request, url_for
+
 from apps.database import retry_dynamodb_operation
-from apps.store import users_table
 from apps.email_service import send_contact_email
 from apps.extensions import limiter
-from apps.utils import validate_email, validate_name, validate_phone, validate_max_length
+from apps.main import bp
+from apps.store import users_table
+from apps.utils import validate_email, validate_max_length, validate_name, validate_phone
 
-@bp.route('/')
+
+@bp.route("/")
 def home():
-    return render_template('landing.html')
+    return render_template("landing.html")
 
-@bp.route('/health')
+
+@bp.route("/health")
 def health():
     """Health check endpoint for Elastic Beanstalk."""
     try:
         # Test DynamoDB connection with a health check item
         def _health_check():
             return users_table.get_item(Key={"email": "__healthcheck__"})
-        
+
         retry_dynamodb_operation(_health_check)
         return jsonify({"status": "healthy", "database": "connected"}), 200
     except Exception as e:
         current_app.logger.error(f"Health check failed: {e}")
         return jsonify({"status": "unhealthy", "error": "database unavailable"}), 503
 
-@bp.route('/about')
+
+@bp.route("/about")
 def about():
-    return render_template('about.html')
+    return render_template("about.html")
 
-@bp.route('/use-cases')
+
+@bp.route("/use-cases")
 def use_cases():
-    return render_template('use-cases.html')
+    return render_template("use-cases.html")
 
-@bp.route('/documentation')
+
+@bp.route("/documentation")
 def documentation():
-    return render_template('documentation.html')
+    return render_template("documentation.html")
 
-@bp.route('/contact', methods=['GET', 'POST'])
+
+@bp.route("/contact", methods=["GET", "POST"])
 @limiter.limit("10 per hour", methods=["POST"])
 def contact():
     form_data = {
-        'name': request.form.get('name', '').strip(),
-        'email': request.form.get('email', '').strip(),
-        'phone': request.form.get('phone', '').strip(),
-        'message': request.form.get('message', '').strip(),
+        "name": request.form.get("name", "").strip(),
+        "email": request.form.get("email", "").strip(),
+        "phone": request.form.get("phone", "").strip(),
+        "message": request.form.get("message", "").strip(),
     }
 
-    if request.method == 'POST':
-        name = form_data['name']
-        email = form_data['email']
-        phone = form_data['phone']
-        message = form_data['message']
+    if request.method == "POST":
+        name = form_data["name"]
+        email = form_data["email"]
+        phone = form_data["phone"]
+        message = form_data["message"]
 
         if not name or not email or not message:
-            flash('Please fill in all required fields.', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Please fill in all required fields.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if not validate_name(name):
-            flash("Name may only contain letters, spaces, hyphens, and apostrophes.", 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Name may only contain letters, spaces, hyphens, and apostrophes.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if not validate_email(email):
-            flash('Please enter a valid email address.', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Please enter a valid email address.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if phone and not validate_phone(phone):
-            flash('Please enter a valid phone number.', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Please enter a valid phone number.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if not validate_max_length(name, 100):
-            flash('Name is too long.', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Name is too long.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if not validate_max_length(phone, 20):
-            flash('Phone number is too long.', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Phone number is too long.", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         if not validate_max_length(message, 3000):
-            flash('Message is too long (maximum 3000 characters).', 'danger')
-            return render_template('contact.html', form_data=form_data), 400
+            flash("Message is too long (maximum 3000 characters).", "danger")
+            return render_template("contact.html", form_data=form_data), 400
 
         success = send_contact_email(name, email, phone, message)
         if success:
             current_app.logger.info(f"Contact form submitted by {email}")
-            flash('Thank you for your message! We will get back to you soon.', 'success')
+            flash("Thank you for your message! We will get back to you soon.", "success")
         else:
             current_app.logger.error(f"Failed to send contact form email from {email}")
-            flash('Something went wrong sending your message. Please try again later.', 'danger')
-        return redirect(url_for('main.contact'))
-    return render_template('contact.html', form_data=form_data)
+            flash("Something went wrong sending your message. Please try again later.", "danger")
+        return redirect(url_for("main.contact"))
+    return render_template("contact.html", form_data=form_data)
 
-@bp.route('/faqs')
+
+@bp.route("/faqs")
 def faq():
-    return render_template('faqs.html')
+    return render_template("faqs.html")

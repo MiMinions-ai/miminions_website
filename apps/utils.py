@@ -1,7 +1,6 @@
 import re
 from datetime import date, datetime
 
-
 NAME_PATTERN = re.compile(r"^[a-zA-Z\s\-']+$")
 PHONE_PATTERN = re.compile(r"^\+?[0-9\s().-]{7,20}$")
 COMMON_PASSWORDS = {
@@ -32,7 +31,7 @@ def validate_email(email):
     if not email:
         return False
     # Standard email regex pattern
-    pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     return bool(re.fullmatch(pattern, email))
 
 
@@ -85,7 +84,7 @@ def sanitize_input(input_string):
     if not input_string:
         return ""
     # Remove HTML tags
-    clean = re.sub(r'<[^>]*>', '', input_string)
+    clean = re.sub(r"<[^>]*>", "", input_string)
     return clean.strip()
 
 

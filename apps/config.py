@@ -1,6 +1,7 @@
+import logging
 import os
 import sys
-import logging
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,12 +20,14 @@ def _require_env(names, context):
             f"Missing required environment variables for {context}: {', '.join(missing)}"
         )
 
+
 class Config:
     """Base configuration."""
+
     SECRET_KEY = os.getenv("SECRET_KEY")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", os.getenv("SECRET_KEY"))
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = "Lax"
     # Default secure to True, override in specific configs if needed
     SESSION_COOKIE_SECURE = True
 
@@ -37,20 +40,27 @@ class Config:
     def init_app(app):
         pass
 
+
 class DevelopmentConfig(Config):
     """Development configuration."""
+
     DEBUG = True
     SESSION_COOKIE_SECURE = False
 
+
 class TestingConfig(Config):
     """Testing configuration."""
+
     TESTING = True
     SESSION_COOKIE_SECURE = False
     SECRET_KEY = "dev-secret-key-for-testing-only"
 
+
 class ProductionConfig(Config):
     """Production configuration."""
+
     SESSION_COOKIE_SECURE = True
+
 
 def get_config():
     """

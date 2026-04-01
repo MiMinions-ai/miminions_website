@@ -1,3 +1,11 @@
+import os
+import sys
+
+# Add project root to path before importing apps
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import pytest
+
 from apps import create_app
 
 
@@ -8,9 +16,6 @@ class TestConfig:
     WTF_CSRF_ENABLED = False
     SESSION_COOKIE_SECURE = False
     RATELIMIT_ENABLED = False
-
-
-import pytest
 
 
 @pytest.fixture

@@ -1,8 +1,9 @@
 import os
-from flask_login import LoginManager
+
 from flask import request
-from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
+from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 
 
 def _client_ip_for_rate_limit():
@@ -24,13 +25,12 @@ def _limiter_storage_uri():
         return redis_url
     return "memory://"
 
+
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'  # Updated to use blueprint endpoint
+login_manager.login_view = "auth.login"  # Updated to use blueprint endpoint
 
 csrf = CSRFProtect()
 
 limiter = Limiter(
-    key_func=_client_ip_for_rate_limit,
-    storage_uri=_limiter_storage_uri(),
-    default_limits=[]
+    key_func=_client_ip_for_rate_limit, storage_uri=_limiter_storage_uri(), default_limits=[]
 )

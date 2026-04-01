@@ -1,9 +1,10 @@
-import logging
 import html
+import logging
+from datetime import datetime, timedelta, timezone
+
 import jwt
-from datetime import datetime, timezone, timedelta
-from flask import current_app, url_for
 import resend
+from flask import current_app, url_for
 
 logger = logging.getLogger(__name__)
 
@@ -81,21 +82,24 @@ def send_verification_email(email):
     verification_url = url_for("auth.verify_email", token=token, _external=True)
 
     try:
-        resend.Emails.send({
-            "from": current_app.config["MAIL_FROM"],
-            "to": [email],
-            "subject": "Verify your email — miminions.ai",
-            "html": (
-                f"<h2>Welcome to miminions.ai!</h2>"
-                f"<p>Thanks for signing up. Please verify your email address by clicking the link below:</p>"
-                f'<p><a href="{verification_url}" '
-                f'style="display:inline-block;padding:12px 24px;background:#0d6efd;color:#fff;'
-                f'text-decoration:none;border-radius:6px;">Verify Email</a></p>'
-                f"<p>This link will expire in 24 hours.</p>"
-                f"<p>If you didn't create an account, you can safely ignore this email.</p>"
-                f"<br><p>— The miminions.ai Team</p>"
-            ),
-        })
+        resend.Emails.send(
+            {
+                "from": current_app.config["MAIL_FROM"],
+                "to": [email],
+                "subject": "Verify your email — miminions.ai",
+                "html": (
+                    f"<h2>Welcome to miminions.ai!</h2>"
+                    f"<p>Thanks for signing up. Please verify your email address "
+                    f"by clicking the link below:</p>"
+                    f'<p><a href="{verification_url}" '
+                    f'style="display:inline-block;padding:12px 24px;background:#0d6efd;color:#fff;'
+                    f'text-decoration:none;border-radius:6px;">Verify Email</a></p>'
+                    f"<p>This link will expire in 24 hours.</p>"
+                    f"<p>If you didn't create an account, you can safely ignore this email.</p>"
+                    f"<br><p>— The miminions.ai Team</p>"
+                ),
+            }
+        )
         logger.info(f"Verification email sent to {email}")
         return True
     except Exception as exc:
@@ -125,20 +129,22 @@ def send_contact_email(name, email, phone, message):
     safe_message = html.escape(message).replace("\n", "<br>")
 
     try:
-        resend.Emails.send({
-            "from": current_app.config["MAIL_FROM"],
-            "to": [current_app.config["CONTACT_EMAIL"]],
-            "reply_to": email,
-            "subject": f"Contact Form — {name}",
-            "html": (
-                f"<h2>New Contact Form Submission</h2>"
-                f"<p><strong>Name:</strong> {safe_name}</p>"
-                f"<p><strong>Email:</strong> {safe_email}</p>"
-                f"<p><strong>Phone:</strong> {safe_phone}</p>"
-                f"<hr>"
-                f"<p>{safe_message}</p>"
-            ),
-        })
+        resend.Emails.send(
+            {
+                "from": current_app.config["MAIL_FROM"],
+                "to": [current_app.config["CONTACT_EMAIL"]],
+                "reply_to": email,
+                "subject": f"Contact Form — {name}",
+                "html": (
+                    f"<h2>New Contact Form Submission</h2>"
+                    f"<p><strong>Name:</strong> {safe_name}</p>"
+                    f"<p><strong>Email:</strong> {safe_email}</p>"
+                    f"<p><strong>Phone:</strong> {safe_phone}</p>"
+                    f"<hr>"
+                    f"<p>{safe_message}</p>"
+                ),
+            }
+        )
         logger.info(f"Contact email forwarded from {email}")
         return True
     except Exception as exc:
