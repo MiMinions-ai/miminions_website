@@ -1,12 +1,19 @@
 import logging
 import os
+import uuid
 from datetime import datetime
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, g, has_request_context
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from apps.config import get_config
 from apps.extensions import login_manager, csrf, limiter
+
+
+class RequestIdFilter(logging.Filter):
+    def filter(self, record):
+        record.request_id = getattr(g, "request_id", "-") if has_request_context() else "-"
+        return True
 
 def create_app(config_class=None):
     if config_class is None:
@@ -40,17 +47,32 @@ def create_app(config_class=None):
     return app
 
 def configure_logging(app):
+    request_id_filter = RequestIdFilter()
+
     if not app.logger.handlers:
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+            format='%(asctime)s [%(levelname)s] [req:%(request_id)s] %(name)s: %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
+
+    for handler in logging.getLogger().handlers:
+        handler.addFilter(request_id_filter)
+
+    for handler in app.logger.handlers:
+        handler.addFilter(request_id_filter)
+
     app.logger.setLevel(logging.INFO)
 
 def register_handlers(app):
+    @app.before_request
+    def assign_request_id():
+        incoming = request.headers.get("X-Request-ID", "").strip()
+        g.request_id = incoming or str(uuid.uuid4())
+
     @app.after_request
     def add_security_headers(response):
+        response.headers["X-Request-ID"] = getattr(g, "request_id", "-")
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
