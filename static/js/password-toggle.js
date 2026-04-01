@@ -2,8 +2,16 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-password-toggle]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var targetId = btn.getAttribute('data-password-toggle');
+      if (!targetId) {
+        return;
+      }
+
       var input = document.getElementById(targetId);
       var icon = btn.querySelector('i');
+      if (!input || !icon) {
+        return;
+      }
+
       if (input.type === 'password') {
         input.type = 'text';
         icon.classList.replace('bi-eye', 'bi-eye-slash');

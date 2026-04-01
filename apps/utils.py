@@ -4,6 +4,17 @@ from datetime import date, datetime
 
 NAME_PATTERN = re.compile(r"^[a-zA-Z\s\-']+$")
 PHONE_PATTERN = re.compile(r"^\+?[0-9\s().-]{7,20}$")
+COMMON_PASSWORDS = {
+    "password",
+    "password123",
+    "12345678",
+    "qwerty",
+    "letmein",
+    "admin",
+    "welcome",
+    "iloveyou",
+    "abc123",
+}
 
 
 def normalize_email(email):
@@ -79,10 +90,33 @@ def sanitize_input(input_string):
 
 
 def validate_password(password):
-    """
-    Validates password strength.
-    Current rule: At least 8 characters.
-    """
+    """Return True when password meets policy requirements."""
+    return len(get_password_validation_errors(password)) == 0
+
+
+def get_password_validation_errors(password):
+    """Return a list of user-facing password policy failures."""
     if not password:
-        return False
-    return len(password) >= 8
+        return ["Password is required."]
+
+    errors = []
+    if len(password) < 12:
+        errors.append("Use at least 12 characters.")
+    if not re.search(r"[A-Z]", password):
+        errors.append("Include at least one uppercase letter.")
+    if not re.search(r"[a-z]", password):
+        errors.append("Include at least one lowercase letter.")
+    if not re.search(r"\d", password):
+        errors.append("Include at least one number.")
+    if not re.search(r"[^A-Za-z0-9]", password):
+        errors.append("Include at least one symbol (for example: ! @ # $).")
+    if password.lower() in COMMON_PASSWORDS:
+        errors.append("Choose a less common password.")
+    return errors
+
+
+def validate_max_length(value, max_length):
+    """Validate that a string does not exceed max_length characters."""
+    if value is None:
+        return True
+    return len(value) <= max_length

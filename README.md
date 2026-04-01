@@ -44,22 +44,50 @@ miminions_website/
 3. **Configure environment:**
    ```bash
    cp example.env .env
-   # Edit .env with your SECRET_KEY and AWS credentials
+   # Edit .env with your SECRET_KEY and other values
    ```
 
-2. Run the application:
+4. **Run the application:**
    ```bash
    python application.py
    ```
    
-   The application will use local JSON database (`users_local_db.json`) when `FLASK_ENV` is not set to `production`.
+   Runtime mode summary:
+   - `FLASK_ENV=production` uses AWS DynamoDB.
+   - Any non-production value (for example `local`) uses local JSON-backed storage.
    
-   You can also use the `--test` flag for explicit test mode:
+   Command flags:
+   - `--test` forces testing config.
+   - `--local` forces local/dev behavior even if `FLASK_ENV=production` is set.
+
+   Example:
    ```bash
    python application.py --test
    ```
    
    Visit http://localhost:5000
+
+## Testing and Quality
+
+Run the test suite:
+
+```bash
+pytest
+```
+
+Run lint and formatting checks:
+
+```bash
+ruff check .
+black --check .
+```
+
+The repository includes a CI workflow at `.github/workflows/ci.yml` that runs:
+
+- Ruff lint checks
+- Black formatting checks
+- Pytest test suite
+- Dependency vulnerability scan via `pip-audit`
 
 ## Environment Variables
 
@@ -72,6 +100,12 @@ miminions_website/
 | `RESEND_API_KEY` | Yes | API key for Resend email service |
 | `MAIL_FROM` | Yes | Sender email address for Resend |
 | `CONTACT_EMAIL` | Yes | Recipient email address for contact form |
+| `REDIS_URL` | Production recommended | Redis backend for Flask-Limiter storage |
+
+Local email behavior:
+
+- If `RESEND_API_KEY` is not set in local/dev mode, the app skips real email sends and logs a development message.
+- Signup and contact flows still return success paths so local development is not blocked by email setup.
 
 On AWS Elastic Beanstalk / EC2, IAM roles provide credentials automatically.
 
@@ -90,6 +124,56 @@ eb deploy
 ```
 
 Set environment variables via the EB Console under Configuration → Software.
+
+## Observability
+
+The app now emits request-correlated logs and response headers:
+
+- `X-Request-ID` is accepted from incoming requests (or generated if missing)
+- `X-Request-ID` is returned in every response
+- Log lines include `req:<request_id>` for easier tracing across auth, email, and DynamoDB events
+
+## Incident Runbook
+
+Auth failures:
+
+1. Check logs for `Login failed` and `Signup failed` entries with request IDs.
+2. Verify `SECRET_KEY`, `JWT_SECRET_KEY`, and cookie settings.
+3. Confirm limiter backend is healthy if users are unexpectedly throttled.
+
+Email delivery failures:
+
+1. Check logs for `Failed to send verification email` or `Failed to send contact email`.
+2. Verify `RESEND_API_KEY`, `MAIL_FROM`, and sender domain verification in Resend.
+3. Retry with a known-good recipient and compare request IDs.
+
+DynamoDB failures:
+
+1. Check `/health` and application logs for DynamoDB retry/error entries.
+2. Verify IAM permissions and `AWS_REGION` configuration.
+3. Confirm table schema (`users`, partition key `email`) is unchanged.
+
+## Deployment Checklist
+
+Before deploying:
+
+1. Confirm required environment variables are set for the target environment.
+2. Ensure `REDIS_URL` is configured in production for persistent limiter state.
+3. Run `ruff check .`, `black --check .`, and `pytest` locally or in CI.
+4. Validate `/health` in the deployed environment.
+5. Spot-check signup/login/contact flows and verify `X-Request-ID` appears in responses and logs.
+
+## Troubleshooting
+
+App fails to start with missing environment variable error:
+
+1. Confirm `.env` exists and includes `SECRET_KEY`.
+2. In production, confirm `SECRET_KEY`, `JWT_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, and `CONTACT_EMAIL` are set.
+
+Unexpected local mode while testing production settings:
+
+1. Check whether `--local` is present in your startup command.
+2. Verify `FLASK_ENV` is explicitly set to `production` in the running environment.
 
 ## License
 

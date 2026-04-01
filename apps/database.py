@@ -32,23 +32,90 @@ class MockTable:
         with open(self.file_path, 'w') as f:
             json.dump(data, f, indent=2)
 
+    def _client_error(self, code, message):
+        raise ClientError(
+            {
+                'Error': {
+                    'Code': code,
+                    'Message': message,
+                }
+            },
+            'MockDynamoDBOperation'
+        )
+
+    def _extract_email_key(self, key_dict):
+        if not isinstance(key_dict, dict) or 'email' not in key_dict:
+            self._client_error('ValidationException', "Mock table requires Key with 'email'")
+        email = key_dict.get('email')
+        if not email:
+            self._client_error('ValidationException', "Partition key 'email' must be non-empty")
+        return str(email)
+
     def get_item(self, Key):
         db_data = self._read_db()
-        # Assume single key for simple mock
-        key_val = next(iter(Key.values()))
-        item = db_data.get(str(key_val))
+        key_val = self._extract_email_key(Key)
+        item = db_data.get(key_val)
         if item:
             return {'Item': item}
         return {}
 
-    def put_item(self, Item):
+    def put_item(self, Item, ConditionExpression=None):
         db_data = self._read_db()
-        # Find the primary key - we assume 'email' for users based on usage
-        key_val = Item.get('email') or Item.get('id')
-        if key_val:
-            db_data[str(key_val)] = Item
-            self._write_db(db_data)
+        key_val = Item.get('email')
+        if not key_val:
+            self._client_error('ValidationException', "Item must include 'email' partition key")
+
+        key_val = str(key_val)
+        if ConditionExpression == "attribute_not_exists(email)" and key_val in db_data:
+            self._client_error('ConditionalCheckFailedException', 'The conditional request failed')
+
+        db_data[key_val] = Item
+        self._write_db(db_data)
         return {'ResponseMetadata': {'HTTPStatusCode': 200}}
+
+    def update_item(
+        self,
+        Key,
+        UpdateExpression,
+        ExpressionAttributeNames=None,
+        ExpressionAttributeValues=None,
+        ConditionExpression=None,
+        ReturnValues=None,
+    ):
+        db_data = self._read_db()
+        key_val = self._extract_email_key(Key)
+
+        if ConditionExpression == "attribute_exists(email)" and key_val not in db_data:
+            self._client_error('ConditionalCheckFailedException', 'The conditional request failed')
+
+        current = db_data.get(key_val)
+        if not current:
+            self._client_error('ResourceNotFoundException', 'Item not found')
+
+        if not UpdateExpression or not UpdateExpression.startswith("SET "):
+            self._client_error('ValidationException', 'Only SET UpdateExpression is supported in mock')
+
+        expression_names = ExpressionAttributeNames or {}
+        expression_values = ExpressionAttributeValues or {}
+
+        assignments = UpdateExpression[4:].split(',')
+        for assignment in assignments:
+            left, right = assignment.strip().split('=', 1)
+            left = left.strip()
+            right = right.strip()
+
+            attr_name = expression_names.get(left, left.lstrip('#'))
+            if right not in expression_values:
+                self._client_error('ValidationException', f'Missing value for token: {right}')
+            current[attr_name] = expression_values[right]
+
+        db_data[key_val] = current
+        self._write_db(db_data)
+
+        response = {'ResponseMetadata': {'HTTPStatusCode': 200}}
+        if ReturnValues == "ALL_NEW":
+            response['Attributes'] = current
+        return response
 
 
 class FakeDynamoDB:
