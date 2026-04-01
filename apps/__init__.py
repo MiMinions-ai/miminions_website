@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, request, render_template, g, has_request_context
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -42,7 +42,7 @@ def create_app(config_class=None):
 
     @app.context_processor
     def inject_template_globals():
-        return {"current_year": datetime.utcnow().year}
+        return {"current_year": datetime.now(timezone.utc).year}
 
     return app
 
